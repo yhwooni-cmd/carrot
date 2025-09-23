@@ -1,0 +1,66 @@
+@startuml 01-안전도조회
+!theme mono
+
+title 01-안전도조회 - 구매자가 판매자 안전도를 확인하는 플로우
+
+actor "구매자" as Buyer
+participant "안전도 조회 서비스" as SafetyService
+participant "사용자 관리 시스템" as UserSystem
+participant "거래 이력 시스템" as TransactionSystem
+participant "안전도 표시 UI" as SafetyUI
+
+== 안전도 조회 프로세스 ==
+
+Buyer -> SafetyService : **사용자 프로필 조회 요청**\n데이터: 판매자ID, 구매자ID, 권한레벨
+
+note right of SafetyService
+**Policy**: 로그인한 사용자만
+안전도 상세 정보 조회 가능
+end note
+
+SafetyService -> UserSystem : 사용자 인증 확인
+UserSystem --> SafetyService : 인증 정보 반환
+
+SafetyService -> SafetyService : **사용자 프로필 조회됨**\n데이터: 판매자ID, 프로필정보, 기본안전도, 조회시간
+
+alt 안전도 정보가 최신이 아닌 경우
+    SafetyService -> TransactionSystem : 최신 거래 이력 요청
+    TransactionSystem --> SafetyService : 거래 데이터 반환
+
+    SafetyService -> SafetyService : **안전도 점수 계산 실행**\n데이터: 판매자ID, 거래이력, 신고내역, 계정생성일
+
+    note right of SafetyService
+    **Policy**: 거래 완료율 70% 이상 → 녹색 등급
+    신고 접수 3건 이상 → 주황색 경고
+    계정 생성 7일 미만 → 회색 신규 표시
+    end note
+
+    SafetyService -> SafetyService : **안전도 점수 계산됨**\n데이터: 판매자ID, 이전점수, 신규점수, 계산근거, 계산시간
+end
+
+SafetyService -> SafetyUI : **안전 표시 생성 요청**\n데이터: 안전도점수, 표시유형, 테마설정
+
+SafetyUI -> SafetyUI : **안전 표시 생성됨**\n데이터: 표시ID, 판매자ID, 표시유형, 색상코드, 아이콘유형
+
+SafetyUI --> Buyer : 안전도 표시 화면 제공
+
+== 상세 정보 요청 (선택사항) ==
+
+opt 구매자가 상세 정보 요청
+    Buyer -> SafetyUI : **안전 표시 클릭**\n데이터: 표시ID, 구매자ID
+
+    SafetyUI -> SafetyUI : **안전 표시 클릭됨**\n데이터: 클릭시간, 표시ID, 사용자ID
+
+    SafetyService -> SafetyService : **안전 정보 상세 요청**\n데이터: 판매자ID, 요청자권한, 요청시간
+
+    note right of SafetyService
+    **Policy**: 프리미엄 사용자는
+    고급 안전 지표 확인 가능
+    end note
+
+    SafetyService -> SafetyService : **안전 정보 상세 조회됨**\n데이터: 상세안전지표, 거래통계, 신뢰도분석
+
+    SafetyService --> Buyer : 상세 안전 정보 제공
+end
+
+@enduml

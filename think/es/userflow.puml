@@ -1,0 +1,49 @@
+@startuml userflow
+!theme mono
+
+title 직관적 안전 표시 시스템 - 유저플로우 연결도
+
+actor "구매자" as Buyer
+actor "판매자" as Seller
+actor "관리자" as Admin
+actor "시스템 스케줄러" as Scheduler
+participant "안전도 조회\n(01-안전도조회)" as Flow01
+participant "안전도 계산\n(02-안전도계산)" as Flow02
+participant "안전 표시 생성\n(03-안전표시생성)" as Flow03
+participant "위험 감지 처리\n(04-위험감지처리)" as Flow04
+participant "신고 처리\n(05-신고처리)" as Flow05
+participant "안전도 갱신\n(06-안전도갱신)" as Flow06
+
+== 구매자 여정 플로우 ==
+
+Buyer -> Flow01 : 1. 판매자 안전도 확인 요청
+Flow01 --> Flow02 : 2. 실시간 안전도 계산 필요 시
+Flow02 --> Flow03 : 3. 계산 완료 후 시각적 표시 생성
+Flow03 --> Buyer : 4. 안전도 표시 제공
+
+== 위험 관리 플로우 ==
+
+Flow04 -> Flow02 : 5. 위험 감지 시 안전도 재계산
+Buyer -> Flow05 : 6. 사용자 신고 접수
+Flow05 --> Flow02 : 7. 신고 처리 후 안전도 재계산
+Flow02 --> Flow03 : 8. 재계산 후 표시 업데이트
+
+== 시스템 운영 플로우 ==
+
+Scheduler -> Flow06 : 9. 주기적 안전도 일괄 갱신
+Flow06 --> Flow02 : 10. 전체 사용자 안전도 재계산
+Flow02 --> Flow03 : 11. 갱신된 안전 표시 생성
+Admin -> Flow04 : 12. 위험 감지 정책 관리
+Admin -> Flow05 : 13. 신고 처리 정책 관리
+
+== 플로우 순환 구조 ==
+
+note over Flow01, Flow06
+구매자는 안전도조회→계산→표시생성의
+기본 플로우를 이용하며,
+위험감지처리와 신고처리는
+안전도 재계산을 트리거하여
+지속적인 신뢰도 관리를 수행합니다.
+end note
+
+@enduml

@@ -1,0 +1,148 @@
+@startuml 05-신고처리
+!theme mono
+
+title 05-신고처리 - 사용자 신고 접수 및 안전도 반영 플로우
+
+actor "신고자" as Reporter
+participant "신고 접수 시스템" as ReportSystem
+participant "신고 검토팀" as ReviewTeam
+participant "사용자 관리 시스템" as UserSystem
+participant "거래 이력 시스템" as TransactionSystem
+participant "알림 시스템" as NotificationSystem
+participant "안전도 계산 엔진" as CalculationEngine
+participant "증거 관리 시스템" as EvidenceSystem
+
+== 신고 접수 ==
+
+Reporter -> ReportSystem : **사용자 신고 제출**\n데이터: 신고자ID, 피신고자ID, 신고유형, 신고내용, 증거자료
+
+note right of ReportSystem
+**신고 유형**:
+• 사기 의심
+• 불량 상품
+• 욕설/폭언
+• 연락 두절
+• 기타 부적절한 행위
+end note
+
+ReportSystem -> ReportSystem : 신고 정보 유효성 검증
+
+alt 유효한 신고인 경우
+    ReportSystem -> EvidenceSystem : 증거 자료 저장\n데이터: 신고ID, 파일정보, 메타데이터
+
+    EvidenceSystem --> ReportSystem : 증거 저장 완료
+
+    ReportSystem -> ReportSystem : **신고 접수됨**\n데이터: 신고ID, 신고자ID, 피신고자ID, 접수시간, 처리상태
+
+    == 중복 신고 검사 ==
+
+    ReportSystem -> ReportSystem : 동일 사안 중복 신고 검사
+
+    alt 유사한 신고가 존재하는 경우
+        ReportSystem -> ReportSystem : 기존 신고와 연결 처리
+
+        note right of ReportSystem
+        **Policy**: 동일 사안에 대한
+        복수 신고는 가중치 부여하여
+        신뢰성 높은 신고로 처리
+        end note
+    end
+
+    == 즉시 대응 평가 ==
+
+    ReportSystem -> ReportSystem : 신고 심각도 자동 평가
+
+    note right of ReportSystem
+    **자동 평가 기준**:
+    • 사기 신고 → 높은 우선순위
+    • 동일 사용자 반복 신고 → 긴급 처리
+    • 증거 자료 풍부 → 신뢰도 높음
+    • 신고자 신뢰도 → 가중치 적용
+    end note
+
+    alt 긴급 처리가 필요한 경우
+        ReportSystem -> NotificationSystem : 긴급 알림 발송\n데이터: 검토팀ID, 알림유형=긴급, 신고상세정보
+
+        ReportSystem -> UserSystem : 피신고자 임시 제한 검토 요청
+    end
+
+    == 검토팀 배정 ==
+
+    ReportSystem -> ReviewTeam : 신고 사건 배정\n데이터: 신고ID, 우선순위, 신고유형
+
+    ReviewTeam -> ReviewTeam : 담당 검토자 배정
+
+else 무효한 신고인 경우
+    ReportSystem --> Reporter : 신고 접수 실패 응답\n데이터: 실패사유, 개선방안
+
+    note right of ReportSystem
+    **무효 신고 사유**:
+    • 불충분한 증거
+    • 중복 신고
+    • 악의적 신고 의심
+    end note
+end
+
+== 신고 검토 프로세스 ==
+
+ReviewTeam -> UserSystem : 피신고자 정보 조회
+UserSystem --> ReviewTeam : 사용자 프로필 및 과거 신고 이력 반환
+
+ReviewTeam -> TransactionSystem : 해당 거래 정보 조회
+TransactionSystem --> ReviewTeam : 거래 상세 내역 반환
+
+ReviewTeam -> EvidenceSystem : 증거 자료 검토
+EvidenceSystem --> ReviewTeam : 증거 분석 결과 반환
+
+== 검토 결과 결정 ==
+
+ReviewTeam -> ReviewTeam : 종합적 검토 및 판정
+
+note right of ReviewTeam
+**판정 기준**:
+• 사실 확인됨 → 조치 필요
+• 사실 확인 어려움 → 모니터링 강화
+• 거짓 신고 → 신고자 경고
+• 악의적 신고 → 신고자 제재
+end note
+
+alt 신고가 사실로 확인된 경우
+    ReviewTeam -> UserSystem : 피신고자 제재 조치\n데이터: 제재유형, 제재기간, 제재사유
+
+    ReviewTeam -> CalculationEngine : **안전도 점수 계산 실행**\n데이터: 피신고자ID, 신고반영가중치, 제재내역
+
+    note right of CalculationEngine
+    **Policy**: 신고 처리 결과에 따른
+    안전도 점수 조정
+    • 사기 확인 → -50점
+    • 불량 상품 → -20점
+    • 욕설/폭언 → -15점
+    end note
+
+    CalculationEngine --> ReviewTeam : 재계산된 안전도 반환
+
+    == 관련자 알림 ==
+
+    ReviewTeam -> NotificationSystem : 신고 처리 결과 알림\n데이터: 신고자ID, 피신고자ID, 처리결과
+
+    NotificationSystem -> Reporter : 신고 처리 완료 알림
+    NotificationSystem -> UserSystem : 피신고자에게 제재 통보
+
+else 신고가 거짓으로 확인된 경우
+    ReviewTeam -> UserSystem : 신고자 경고 조치 검토
+
+    ReviewTeam -> NotificationSystem : 신고자에게 경고 알림\n데이터: 신고자ID, 경고사유, 개선요청사항
+end
+
+== 사후 모니터링 ==
+
+ReviewTeam -> ReportSystem : 처리 완료 및 모니터링 설정\n데이터: 신고ID, 처리결과, 후속조치계획
+
+note right of ReportSystem
+**사후 모니터링**:
+• 제재받은 사용자 활동 추적
+• 유사 신고 재발 방지
+• 신고 처리 품질 개선
+end note
+
+@enduml

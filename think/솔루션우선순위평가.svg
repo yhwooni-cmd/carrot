@@ -1,0 +1,171 @@
+<svg width="900" height="700" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 -->
+  <rect width="900" height="700" fill="#f8f9fa"/>
+
+  <!-- 제목 -->
+  <text x="450" y="30" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="20" font-weight="bold" fill="#212529">중고거래 플랫폼 솔루션 우선순위 평가 매트릭스</text>
+
+  <!-- 축 -->
+  <line x1="100" y1="600" x2="800" y2="600" stroke="#333" stroke-width="2"/>
+  <line x1="100" y1="600" x2="100" y2="100" stroke="#333" stroke-width="2"/>
+
+  <!-- X축 라벨 (실현가능성) -->
+  <text x="450" y="640" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="14" font-weight="bold">실현가능성</text>
+  <text x="150" y="620" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" fill="#666">낮음</text>
+  <text x="750" y="620" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" fill="#666">높음</text>
+
+  <!-- Y축 라벨 (비즈니스 영향도) -->
+  <text x="50" y="350" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="14" font-weight="bold" transform="rotate(-90 50 350)">비즈니스 영향도</text>
+  <text x="85" y="590" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" fill="#666">낮음</text>
+  <text x="85" y="120" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" fill="#666">높음</text>
+
+  <!-- 눈금 -->
+  <g stroke="#ddd" stroke-width="1" fill="none">
+    <!-- X축 눈금 -->
+    <line x1="200" y1="595" x2="200" y2="605"/>
+    <line x1="325" y1="595" x2="325" y2="605"/>
+    <line x1="475" y1="595" x2="475" y2="605"/>
+    <line x1="625" y1="595" x2="625" y2="605"/>
+    <line x1="775" y1="595" x2="775" y2="605"/>
+
+    <!-- Y축 눈금 -->
+    <line x1="95" y1="500" x2="105" y2="500"/>
+    <line x1="95" y1="400" x2="105" y2="400"/>
+    <line x1="95" y1="300" x2="105" y2="300"/>
+    <line x1="95" y1="200" x2="105" y2="200"/>
+
+    <!-- 격자 -->
+    <line x1="100" y1="500" x2="800" y2="500" opacity="0.3"/>
+    <line x1="100" y1="400" x2="800" y2="400" opacity="0.3"/>
+    <line x1="100" y1="300" x2="800" y2="300" opacity="0.3"/>
+    <line x1="100" y1="200" x2="800" y2="200" opacity="0.3"/>
+
+    <line x1="200" y1="100" x2="200" y2="600" opacity="0.3"/>
+    <line x1="325" y1="100" x2="325" y2="600" opacity="0.3"/>
+    <line x1="475" y1="100" x2="475" y2="600" opacity="0.3"/>
+    <line x1="625" y1="100" x2="625" y2="600" opacity="0.3"/>
+  </g>
+
+  <!-- 구역 표시 -->
+  <!-- Big Bets (왼쪽 위) -->
+  <rect x="100" y="100" width="275" height="200" fill="#e3f2fd" opacity="0.3"/>
+  <text x="240" y="130" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="16" font-weight="bold" fill="#1976d2">Big Bets</text>
+
+  <!-- No Brainers (오른쪽 위) -->
+  <rect x="375" y="100" width="425" height="200" fill="#e8f5e8" opacity="0.3"/>
+  <text x="590" y="130" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="16" font-weight="bold" fill="#2e7d32">No Brainers</text>
+
+  <!-- Unwise (왼쪽 아래) -->
+  <rect x="100" y="300" width="275" height="300" fill="#ffebee" opacity="0.3"/>
+  <text x="240" y="630" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="16" font-weight="bold" fill="#c62828">Unwise</text>
+
+  <!-- Utilities (오른쪽 아래) -->
+  <rect x="375" y="300" width="425" height="300" fill="#fff3e0" opacity="0.3"/>
+  <text x="590" y="630" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="16" font-weight="bold" fill="#f57c00">Utilities</text>
+
+  <!-- 구분선 -->
+  <line x1="375" y1="100" x2="375" y2="600" stroke="#666" stroke-width="2" stroke-dasharray="5,5"/>
+  <line x1="100" y1="300" x2="800" y2="300" stroke="#666" stroke-width="2" stroke-dasharray="5,5"/>
+
+  <!-- 솔루션 포인트 -->
+  <!-- No Brainers 영역 -->
+  <circle cx="700" cy="250" r="8" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+  <text x="700" y="240" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S1</text>
+
+  <!-- Big Bets 영역 -->
+  <circle cx="150" cy="200" r="8" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="150" y="205" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S5</text>
+
+  <circle cx="150" cy="200" r="8" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="150" y="205" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S6</text>
+
+  <circle cx="150" cy="200" r="8" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="150" y="205" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S7</text>
+
+  <!-- Utilities 영역 -->
+  <circle cx="575" cy="500" r="8" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="505" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S2</text>
+
+  <circle cx="575" cy="500" r="8" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="505" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S3</text>
+
+  <circle cx="575" cy="500" r="8" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="505" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S4</text>
+
+  <circle cx="575" cy="400" r="8" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="405" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S8</text>
+
+  <circle cx="575" cy="400" r="8" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="405" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S9</text>
+
+  <!-- Unwise 영역 -->
+  <circle cx="200" cy="500" r="8" fill="#f44336" stroke="#c62828" stroke-width="2"/>
+  <text x="200" y="505" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S10</text>
+
+  <!-- 범례 -->
+  <g transform="translate(50, 50)">
+    <rect x="0" y="0" width="280" height="350" fill="#fff" stroke="#ddd" stroke-width="1" rx="5"/>
+    <text x="140" y="20" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="14" font-weight="bold">솔루션 목록</text>
+
+    <text x="10" y="40" font-family="Noto Sans KR, Arial" font-size="11" font-weight="bold">S1: 직관적 안전 표시 시스템</text>
+    <text x="10" y="55" font-family="Noto Sans KR, Arial" font-size="11">S2: 모바일 우선 간편 인터페이스</text>
+    <text x="10" y="70" font-family="Noto Sans KR, Arial" font-size="11">S3: 실시간 채팅 강화</text>
+    <text x="10" y="85" font-family="Noto Sans KR, Arial" font-size="11">S4: 거래 패턴 분석 대시보드</text>
+    <text x="10" y="100" font-family="Noto Sans KR, Arial" font-size="11">S5: 통합 신원 인증 시스템</text>
+    <text x="10" y="115" font-family="Noto Sans KR, Arial" font-size="11">S6: 포용적 접근성 플랫폼</text>
+    <text x="10" y="130" font-family="Noto Sans KR, Arial" font-size="11">S7: AI 기반 종합 안전 분석</text>
+    <text x="10" y="145" font-family="Noto Sans KR, Arial" font-size="11">S8: 가족 승인 거래 시스템</text>
+    <text x="10" y="160" font-family="Noto Sans KR, Arial" font-size="11">S9: 거래 완료 후 만족도 리워드</text>
+    <text x="10" y="175" font-family="Noto Sans KR, Arial" font-size="11">S10: 기타 솔루션들</text>
+
+    <text x="10" y="200" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold">영역 설명:</text>
+    <circle cx="20" cy="215" r="5" fill="#4caf50"/>
+    <text x="35" y="220" font-family="Noto Sans KR, Arial" font-size="11">No Brainers: 즉시 실행 권장</text>
+
+    <circle cx="20" cy="235" r="5" fill="#2196f3"/>
+    <text x="35" y="240" font-family="Noto Sans KR, Arial" font-size="11">Big Bets: 장기 투자 검토</text>
+
+    <circle cx="20" cy="255" r="5" fill="#ff9800"/>
+    <text x="35" y="260" font-family="Noto Sans KR, Arial" font-size="11">Utilities: 기본 기능 구현</text>
+
+    <circle cx="20" cy="275" r="5" fill="#f44336"/>
+    <text x="35" y="280" font-family="Noto Sans KR, Arial" font-size="11">Unwise: 우선순위 낮음</text>
+  </g>
+
+  <!-- 실제 솔루션 배치 -->
+  <!-- 직관적 안전 표시 시스템 (비즈니스 가치: 1, 실현가능성: 4) -->
+  <circle cx="700" cy="500" r="10" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+  <text x="700" y="506" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S1</text>
+
+  <!-- 모바일 우선 간편 인터페이스 (비즈니스 가치: 1, 실현가능성: 3) -->
+  <circle cx="575" cy="500" r="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="506" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S2</text>
+
+  <!-- 실시간 채팅 강화 (비즈니스 가치: 1, 실현가능성: 3) -->
+  <circle cx="590" cy="500" r="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="590" y="506" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S3</text>
+
+  <!-- 거래 패턴 분석 대시보드 (비즈니스 가치: 1, 실현가능성: 3) -->
+  <circle cx="560" cy="500" r="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="560" y="506" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S4</text>
+
+  <!-- 통합 신원 인증 시스템 (비즈니스 가치: 3, 실현가능성: 0) -->
+  <circle cx="150" cy="200" r="10" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="150" y="206" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S5</text>
+
+  <!-- 포용적 접근성 플랫폼 (비즈니스 가치: 3, 실현가능성: 0) -->
+  <circle cx="170" cy="200" r="10" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="170" y="206" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S6</text>
+
+  <!-- AI 기반 종합 안전 분석 시스템 (비즈니스 가치: 3, 실현가능성: 0) -->
+  <circle cx="190" cy="200" r="10" fill="#2196f3" stroke="#1976d2" stroke-width="2"/>
+  <text x="190" y="206" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S7</text>
+
+  <!-- 가족 승인 거래 시스템 (비즈니스 가치: 0, 실현가능성: 3) -->
+  <circle cx="575" cy="550" r="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="575" y="556" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S8</text>
+
+  <!-- 거래 완료 후 만족도 리워드 (비즈니스 가치: 0, 실현가능성: 3) -->
+  <circle cx="590" cy="550" r="10" fill="#ff9800" stroke="#f57c00" stroke-width="2"/>
+  <text x="590" y="556" text-anchor="middle" font-family="Noto Sans KR, Arial" font-size="12" font-weight="bold" fill="#fff">S9</text>
+</svg>

@@ -1,0 +1,113 @@
+@startuml 04-위험감지처리
+!theme mono
+
+title 04-위험감지처리 - 위험 요소 감지 시 대응하는 플로우
+
+participant "위험 감지 엔진" as RiskEngine
+participant "로그 수집 시스템" as LogSystem
+participant "거래 이력 시스템" as TransactionSystem
+participant "사용자 관리 시스템" as UserSystem
+participant "알림 시스템" as NotificationSystem
+participant "관리자 대시보드" as AdminDashboard
+participant "안전도 계산 엔진" as CalculationEngine
+
+== 실시간 위험 모니터링 ==
+
+LogSystem -> RiskEngine : 실시간 활동 로그 스트림\n데이터: 사용자활동, IP정보, 접속패턴
+
+RiskEngine -> RiskEngine : 위험 패턴 분석
+
+note right of RiskEngine
+**Policy - 위험 감지 규칙**:
+• 동일 IP에서 24시간 내 5개 이상 계정 생성
+• 거래 취소율이 급격히 증가 (50% 이상)
+• 평균 응답시간이 급격히 지연 (24시간 이상)
+• 동일 결제수단으로 다중 계정 운영
+• 비정상적 거래 패턴 (시간대, 금액, 빈도)
+end note
+
+== 위험 요소 감지 ==
+
+alt 의심스러운 활동 패턴 발견
+    RiskEngine -> RiskEngine : **위험 요소 감지됨**\n데이터: 사용자ID, 위험유형, 감지시간, 위험도, 증거데이터
+
+    RiskEngine -> TransactionSystem : 해당 사용자 거래 이력 상세 조회
+    TransactionSystem --> RiskEngine : 거래 패턴 분석 데이터 반환
+
+    RiskEngine -> UserSystem : 계정 정보 및 연관 계정 조회
+    UserSystem --> RiskEngine : 사용자 프로필 및 연관성 데이터 반환
+
+    == 위험도 평가 ==
+
+    RiskEngine -> RiskEngine : 종합 위험도 점수 계산
+
+    note right of RiskEngine
+    **위험도 계산**:
+    • 낮음(1-3점): 모니터링 강화
+    • 보통(4-6점): 제한적 조치
+    • 높음(7-8점): 즉시 조치 필요
+    • 매우높음(9-10점): 계정 정지
+    end note
+
+    alt 위험도가 높음 이상인 경우
+        RiskEngine -> RiskEngine : **위험 요소 스캔 실행**\n데이터: 스캔범위, 스캔깊이, 우선순위
+
+        == 즉시 대응 조치 ==
+
+        alt 매우 높은 위험도 (9-10점)
+            RiskEngine -> UserSystem : 계정 임시 정지 요청
+            UserSystem --> RiskEngine : 정지 처리 완료
+
+            RiskEngine -> NotificationSystem : 긴급 알림 발송\n데이터: 관리자ID, 알림유형=긴급, 위험상세정보
+        else 높은 위험도 (7-8점)
+            RiskEngine -> UserSystem : 계정 제한 설정\n데이터: 제한유형, 제한기간, 제한사유
+
+            RiskEngine -> NotificationSystem : 관리자 알림 발송\n데이터: 관리자ID, 알림유형=주의, 위험상세정보
+        end
+
+        == 안전도 재계산 트리거 ==
+
+        RiskEngine -> CalculationEngine : **안전도 점수 계산 실행**\n데이터: 사용자ID, 위험가중치, 계산우선순위=높음
+
+        note right of CalculationEngine
+        **Policy**: 위험 감지 시
+        안전도에 즉시 반영하여
+        다른 사용자들에게 경고 제공
+        end note
+
+        CalculationEngine --> RiskEngine : 재계산된 안전도 점수 반환
+
+        == 관리자 대시보드 업데이트 ==
+
+        RiskEngine -> AdminDashboard : 위험 사건 등록\n데이터: 사건ID, 위험유형, 처리상태, 영향범위
+
+        AdminDashboard --> RiskEngine : 등록 완료 확인
+    end
+
+    == 연관 계정 추가 검사 ==
+
+    opt 연관 계정이 발견된 경우
+        RiskEngine -> RiskEngine : 연관 계정 위험도 평가
+
+        loop 각 연관 계정별
+            RiskEngine -> CalculationEngine : 연관 계정 안전도 재계산 요청
+            CalculationEngine --> RiskEngine : 재계산 결과 반환
+        end
+
+        RiskEngine -> AdminDashboard : 연관 계정 위험 보고서 생성
+    end
+
+    == 모니터링 강화 ==
+
+    RiskEngine -> RiskEngine : 해당 사용자 모니터링 강화 설정
+
+    note right of RiskEngine
+    **강화 모니터링**:
+    • 실시간 활동 추적
+    • 거래 패턴 상세 분석
+    • 커뮤니케이션 모니터링
+    • 결제 수단 검증 강화
+    end note
+end
+
+@enduml

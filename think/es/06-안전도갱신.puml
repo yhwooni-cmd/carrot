@@ -1,0 +1,134 @@
+@startuml 06-안전도갱신
+!theme mono
+
+title 06-안전도갱신 - 주기적 또는 트리거 기반 안전도 업데이트 플로우
+
+participant "시스템 스케줄러" as Scheduler
+participant "안전도 갱신 관리자" as UpdateManager
+participant "사용자 관리 시스템" as UserSystem
+participant "안전도 계산 엔진" as CalculationEngine
+participant "안전 표시 생성기" as DisplayGenerator
+participant "알림 시스템" as NotificationSystem
+participant "성능 모니터링" as PerformanceMonitor
+participant "데이터베이스" as Database
+
+== 주기적 갱신 스케줄링 ==
+
+Scheduler -> UpdateManager : **안전도 갱신 요청**\n데이터: 갱신유형(일간/주간/월간), 대상범위, 우선순위
+
+note right of Scheduler
+**갱신 스케줄**:
+• 일간 갱신: 매일 자정 (활성 사용자)
+• 주간 갱신: 매주 일요일 (전체 사용자)
+• 월간 갱신: 매월 1일 (종합 재평가)
+• 긴급 갱신: 정책 변경 시
+end note
+
+UpdateManager -> UpdateManager : 갱신 작업 계획 수립
+
+== 갱신 대상 사용자 선별 ==
+
+UpdateManager -> UserSystem : 갱신 대상 사용자 목록 요청\n데이터: 갱신기준, 필터조건, 우선순위
+
+note right of UserSystem
+**갱신 대상 선별 기준**:
+• 최근 거래 활동이 있는 사용자
+• 신고 접수된 사용자
+• 안전도 변동 요인이 있는 사용자
+• 정기 갱신 주기가 도래한 사용자
+end note
+
+UserSystem --> UpdateManager : 사용자 목록 반환\n데이터: 사용자ID목록, 우선순위, 예상작업량
+
+== 배치 처리 최적화 ==
+
+UpdateManager -> PerformanceMonitor : 시스템 리소스 상태 확인
+PerformanceMonitor --> UpdateManager : 리소스 사용률 및 권장 배치 크기 반환
+
+UpdateManager -> UpdateManager : **안전도 갱신 시작됨**\n데이터: 배치ID, 총대상수, 예상소요시간
+
+note right of UpdateManager
+**배치 처리 전략**:
+• 시스템 부하 < 70% → 대용량 배치
+• 시스템 부하 70-85% → 중간 배치
+• 시스템 부하 > 85% → 소용량 배치
+• 피크 시간대 → 처리 연기
+end note
+
+== 사용자별 안전도 재계산 ==
+
+loop 각 배치별 사용자 그룹
+    UpdateManager -> CalculationEngine : **안전도 점수 계산 실행** (배치)\n데이터: 사용자ID배열, 계산모드=배치, 우선순위
+
+    CalculationEngine -> Database : 사용자별 최신 데이터 조회 (병렬)
+    Database --> CalculationEngine : 거래이력, 신고내역, 활동로그 반환
+
+    CalculationEngine -> CalculationEngine : **안전도 점수 계산됨** (배치)\n데이터: 사용자별 계산결과, 변경여부, 계산시간
+
+    alt 안전도 변경이 발생한 사용자들
+        CalculationEngine -> CalculationEngine : **안전 등급 재평가됨**\n데이터: 등급변경사용자목록, 변경내역
+
+        CalculationEngine -> DisplayGenerator : **안전 표시 업데이트 실행** (배치)\n데이터: 변경사용자목록, 신규안전도정보
+
+        DisplayGenerator -> DisplayGenerator : **안전 표시 업데이트됨** (배치)\n데이터: 업데이트된표시정보, 캐시갱신목록
+
+        == 중요한 등급 변경 알림 ==
+
+        alt 안전 등급이 크게 하락한 경우
+            DisplayGenerator -> NotificationSystem : 등급 하락 알림 발송\n데이터: 사용자ID, 이전등급, 현재등급, 하락사유
+
+            note right of NotificationSystem
+            **알림 발송 기준**:
+            • 2단계 이상 등급 하락
+            • 위험 등급으로 변경
+            • 계정 제재와 연관된 변경
+            end note
+        end
+    end
+
+    UpdateManager -> PerformanceMonitor : 배치 처리 성능 보고\n데이터: 처리속도, 리소스사용량, 오류율
+
+    alt 시스템 부하가 높아진 경우
+        UpdateManager -> UpdateManager : 배치 크기 조정 및 처리 속도 조절
+
+        note right of UpdateManager
+        **자동 최적화**:
+        • CPU 사용률 > 80% → 배치 크기 50% 감소
+        • 메모리 사용률 > 85% → 처리 간격 증가
+        • 오류율 > 5% → 처리 일시 중단
+        end note
+    end
+end
+
+== 갱신 결과 집계 및 보고 ==
+
+UpdateManager -> UpdateManager : **안전도 갱신 완료됨**\n데이터: 총처리수, 변경사용자수, 처리시간, 오류수
+
+UpdateManager -> Database : 갱신 결과 통계 저장\n데이터: 갱신통계, 성능지표, 품질지표
+
+== 사후 작업 ==
+
+UpdateManager -> NotificationSystem : 관리자에게 갱신 완료 보고\n데이터: 갱신요약, 주요변경사항, 이슈사항
+
+alt 오류가 발생한 사용자가 있는 경우
+    UpdateManager -> UpdateManager : 오류 사용자 재처리 스케줄링
+
+    note right of UpdateManager
+    **오류 처리 전략**:
+    • 일시적 오류 → 30분 후 재시도
+    • 데이터 오류 → 수동 검토 필요
+    • 시스템 오류 → 기술팀 에스컬레이션
+    end note
+end
+
+UpdateManager -> PerformanceMonitor : 시스템 리소스 정리 및 최적화
+
+note right of UpdateManager
+**정리 작업**:
+• 임시 데이터 삭제
+• 캐시 정리
+• 로그 아카이빙
+• 다음 갱신 스케줄 설정
+end note
+
+@enduml

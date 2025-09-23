@@ -1,0 +1,100 @@
+@startuml 03-안전표시생성
+!theme mono
+
+title 03-안전표시생성 - 계산된 안전도를 시각적으로 표시하는 플로우
+
+participant "안전 표시 생성기" as DisplayGenerator
+participant "안전도 계산 엔진" as CalculationEngine
+participant "UI 테마 관리자" as ThemeManager
+participant "사용자 설정 시스템" as SettingSystem
+participant "안전 표시 저장소" as DisplayStorage
+
+== 안전 표시 생성 요청 ==
+
+-> DisplayGenerator : **안전 표시 생성 요청**\n데이터: 사용자ID, 안전도점수, 표시컨텍스트
+
+DisplayGenerator -> CalculationEngine : 최신 안전도 정보 확인
+CalculationEngine --> DisplayGenerator : 안전도 데이터 반환\n데이터: 안전도점수, 안전등급, 계산시간
+
+== 사용자 맞춤 설정 적용 ==
+
+DisplayGenerator -> SettingSystem : 사용자 표시 설정 조회
+SettingSystem --> DisplayGenerator : 설정 정보 반환\n데이터: 색상테마, 표시형태, 상세정도
+
+note right of SettingSystem
+**Policy**: 사용자별 맞춤 설정
+• 색약 사용자용 대체 색상
+• 고령자용 큰 아이콘
+• 간단/상세 표시 모드 선택
+end note
+
+== 시각적 요소 결정 ==
+
+DisplayGenerator -> DisplayGenerator : 안전등급별 시각 요소 매핑
+
+note right of DisplayGenerator
+**Policy - 시각적 표시 규칙**:
+• 최우수(90-100점) → 진녹색, ★★★★★
+• 우수(70-89점) → 녹색, ★★★★☆
+• 보통(50-69점) → 주황색, ★★★☆☆
+• 주의(30-49점) → 빨간색, ★★☆☆☆
+• 위험(0-29점) → 검은색, ★☆☆☆☆
+• 신규사용자 → 회색, ⭐NEW
+end note
+
+DisplayGenerator -> ThemeManager : 테마별 색상 및 아이콘 요청\n데이터: 안전등급, 사용자테마설정
+
+ThemeManager --> DisplayGenerator : 시각 요소 반환\n데이터: 색상코드, 아이콘URL, 배지스타일
+
+== 표시 요소 생성 ==
+
+DisplayGenerator -> DisplayGenerator : **안전 표시 생성됨**\n데이터: 표시ID, 사용자ID, 표시유형, 색상코드, 아이콘유형
+
+alt 상세 정보 포함 표시
+    DisplayGenerator -> DisplayGenerator : 추가 정보 요소 생성
+
+    note right of DisplayGenerator
+    **상세 표시 요소**:
+    • 거래 완료율 표시
+    • 응답 속도 지표
+    • 신뢰도 점수
+    • 인증 배지
+    end note
+end
+
+== 표시 정보 저장 및 캐싱 ==
+
+DisplayGenerator -> DisplayStorage : 생성된 표시 정보 저장\n데이터: 표시메타데이터, 캐시만료시간
+
+note right of DisplayStorage
+**Policy - 캐싱 규칙**:
+• 일반 사용자: 1시간 캐시
+• 신규 사용자: 실시간 갱신
+• 위험 사용자: 30분 캐시
+end note
+
+DisplayStorage --> DisplayGenerator : 저장 완료 확인
+
+== 표시 업데이트 처리 ==
+
+alt 안전도 변경으로 인한 업데이트
+    -> DisplayGenerator : **안전 표시 업데이트 실행**\n데이터: 사용자ID, 변경사유, 이전안전도
+
+    DisplayGenerator -> DisplayGenerator : 기존 표시와 비교 분석
+
+    alt 시각적 변경이 필요한 경우
+        DisplayGenerator -> DisplayGenerator : **안전 표시 업데이트됨**\n데이터: 표시ID, 변경내역, 업데이트시간
+
+        DisplayGenerator -> DisplayStorage : 업데이트된 표시 정보 저장
+        DisplayStorage --> DisplayGenerator : 저장 완료
+
+        note right of DisplayGenerator
+        **Policy**: 등급 변경 시
+        사용자에게 알림 발송
+        end note
+    end
+end
+
+<-- DisplayGenerator : 표시 생성 완료\n데이터: 표시HTML/이미지, 메타데이터
+
+@enduml

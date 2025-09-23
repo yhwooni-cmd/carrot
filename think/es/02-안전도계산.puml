@@ -1,0 +1,91 @@
+@startuml 02-안전도계산
+!theme mono
+
+title 02-안전도계산 - 시스템이 사용자의 안전도를 계산하는 플로우
+
+participant "안전도 계산 엔진" as CalculationEngine
+participant "사용자 관리 시스템" as UserSystem
+participant "거래 이력 시스템" as TransactionSystem
+participant "신고 관리 시스템" as ReportSystem
+participant "로그 수집 시스템" as LogSystem
+participant "외부 신용 평가 API" as CreditAPI
+
+== 안전도 계산 초기화 ==
+
+-> CalculationEngine : **안전도 점수 계산 실행**\n데이터: 사용자ID, 계산유형(실시간/배치)
+
+CalculationEngine -> UserSystem : 사용자 기본 정보 요청
+UserSystem --> CalculationEngine : 사용자 프로필 반환\n데이터: 계정생성일, 인증상태, 프로필완성도
+
+CalculationEngine -> TransactionSystem : 거래 이력 조회
+TransactionSystem --> CalculationEngine : 거래 데이터 반환\n데이터: 총거래수, 완료율, 취소율, 평균응답시간
+
+CalculationEngine -> ReportSystem : 신고 내역 조회
+ReportSystem --> CalculationEngine : 신고 정보 반환\n데이터: 신고접수수, 신고유형, 처리상태
+
+CalculationEngine -> LogSystem : 활동 로그 조회
+LogSystem --> CalculationEngine : 활동 데이터 반환\n데이터: 접속패턴, 이상행동지표
+
+== 신용도 정보 연동 (선택적) ==
+
+opt 프리미엄 사용자의 경우
+    CalculationEngine -> CreditAPI : 외부 신용 정보 요청
+
+    note right of CreditAPI
+    **External System**: 제3자 신용평가 API
+    추가적인 신뢰도 지표 제공
+    end note
+
+    CreditAPI --> CalculationEngine : 신용 평가 결과 반환
+end
+
+== 안전도 점수 계산 로직 ==
+
+CalculationEngine -> CalculationEngine : 기본 점수 계산
+
+note right of CalculationEngine
+**Policy - 안전도 계산 규칙**:
+• 거래 완료율 70% 이상 → +20점
+• 신고 접수 3건 이상 → -30점
+• 계정 생성 7일 미만 → 신규사용자 표시
+• 거래 취소율 50% 이상 → -20점
+• 평균 응답시간 24시간 이상 → -10점
+• 프로필 완성도 90% 이상 → +10점
+end note
+
+CalculationEngine -> CalculationEngine : 가중치 적용 및 최종 점수 산출
+
+alt 이상 활동 감지
+    CalculationEngine -> CalculationEngine : **위험 요소 감지됨**\n데이터: 위험유형, 감지시간, 위험도
+
+    note right of CalculationEngine
+    **Policy - 위험 감지 규칙**:
+    • 동일 IP 24시간 내 5개 이상 계정 생성
+    • 거래 패턴의 급격한 변화
+    • 신고 접수 급증 패턴
+    end note
+
+    CalculationEngine -> CalculationEngine : 위험도 가중치 추가 적용
+end
+
+CalculationEngine -> CalculationEngine : **안전도 점수 계산됨**\n데이터: 사용자ID, 이전점수, 신규점수, 계산근거, 계산시간
+
+== 안전 등급 결정 ==
+
+CalculationEngine -> CalculationEngine : 안전 등급 매핑
+
+note right of CalculationEngine
+**Policy - 등급 분류**:
+• 90-100점 → 최우수 (진녹색)
+• 70-89점 → 우수 (녹색)
+• 50-69점 → 보통 (주황색)
+• 30-49점 → 주의 (빨간색)
+• 0-29점 → 위험 (검은색)
+• 신규사용자 → 회색
+end note
+
+CalculationEngine -> CalculationEngine : **안전 등급 재평가됨**\n데이터: 사용자ID, 이전등급, 신규등급, 등급변경사유
+
+<-- CalculationEngine : 계산 완료 응답\n데이터: 최종안전도점수, 안전등급, 계산메타데이터
+
+@enduml
