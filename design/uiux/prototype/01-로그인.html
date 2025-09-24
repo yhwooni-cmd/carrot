@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 안전한 중고거래 플랫폼</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: var(--space-lg);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .login-title {
+            font-size: var(--font-size-h2);
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .login-subtitle {
+            font-size: var(--font-size-body);
+            color: var(--text-secondary);
+        }
+
+        .login-form {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: var(--space-lg);
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: var(--space-md) 0;
+            font-size: var(--font-size-body-sm);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .forgot-password {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: var(--space-lg);
+            font-size: var(--font-size-body-sm);
+        }
+
+        .signup-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">🥕 당근안전</a>
+                <div class="user-menu">
+                    <a href="03-회원가입.html" class="nav-link">회원가입</a>
+                    <a href="#" class="nav-link">도움말</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="login-container">
+        <div class="login-header">
+            <h1 class="login-title">로그인</h1>
+            <p class="login-subtitle">안전한 거래를 시작하세요</p>
+        </div>
+
+        <form class="login-form" id="login-form">
+            <div class="form-group">
+                <label for="login-email" class="form-label">이메일 주소</label>
+                <input type="email" id="login-email" class="form-input" data-validate="email" placeholder="example@email.com" required>
+                <span class="form-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="login-password" class="form-label">비밀번호</label>
+                <input type="password" id="login-password" class="form-input" placeholder="비밀번호를 입력하세요" required>
+                <span class="form-error"></span>
+            </div>
+
+            <div class="login-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember-me">
+                    로그인 상태 유지
+                </label>
+                <a href="#" class="forgot-password">비밀번호 찾기</a>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--large" style="width: 100%;" data-loading="true">
+                로그인
+            </button>
+        </form>
+
+        <div class="signup-link">
+            아직 계정이 없으신가요? <a href="03-회원가입.html">회원가입</a>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                if (!FormValidator.validateEmail(email)) {
+                    FormValidator.showError('login-email', '올바른 이메일 주소를 입력해주세요.');
+                    return;
+                }
+
+                if (!password) {
+                    FormValidator.showError('login-password', '비밀번호를 입력해주세요.');
+                    return;
+                }
+
+                // 로그인 시뮬레이션
+                LoadingManager.start('#login-form button[type="submit"]');
+
+                setTimeout(() => {
+                    // 시뮬레이션: 로그인 성공
+                    if (email === 'test@example.com' && password === 'password123') {
+                        NotificationSystem.show('success', '로그인 성공', '환영합니다!');
+
+                        // 사용자 정보 저장
+                        Storage.set('isLoggedIn', true);
+                        Storage.set('currentUser', {
+                            email: email,
+                            name: '김안전',
+                            safetyScore: 85
+                        });
+
+                        setTimeout(() => {
+                            window.location.href = '14-메인대시보드.html';
+                        }, 1000);
+                    } else {
+                        LoadingManager.stop('#login-form button[type="submit"]');
+                        NotificationSystem.show('error', '로그인 실패', '이메일 또는 비밀번호가 잘못되었습니다.');
+                    }
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 안전한 중고거래 플랫폼</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 로그인 전용 스타일 */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: var(--space-lg);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            padding: var(--space-3xl);
+            position: relative;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .login-logo {
+            font-size: var(--font-size-h2);
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: var(--font-size-body);
+            margin-bottom: var(--space-lg);
+        }
+
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: #E8F5E8;
+            border-radius: 8px;
+            font-size: var(--font-size-body-sm);
+            color: #2E7D32;
+        }
+
+        .login-form {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-input {
+            padding-right: 48px;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 20px;
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            font-size: var(--font-size-body-sm);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .find-password {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .find-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-attempts {
+            background: #FFF3E0;
+            border: 1px solid var(--light-orange);
+            border-radius: 8px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            font-size: var(--font-size-body-sm);
+            color: var(--dark-orange);
+        }
+
+        .two-factor-section {
+            margin-top: var(--space-lg);
+            padding: var(--space-lg);
+            background: #E3F2FD;
+            border-radius: 12px;
+            border: 1px solid var(--light-blue);
+            display: none;
+        }
+
+        .two-factor-section.active {
+            display: block;
+        }
+
+        .auth-method-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .auth-method {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: var(--font-size-body-sm);
+        }
+
+        .auth-method.selected {
+            border-color: var(--primary-blue);
+            background: #E3F2FD;
+            color: var(--primary-blue);
+        }
+
+        .auth-method:hover {
+            border-color: var(--light-blue);
+        }
+
+        .verification-code-group {
+            display: flex;
+            gap: var(--space-md);
+            align-items: flex-end;
+        }
+
+        .verification-code-group .form-group {
+            flex: 1;
+        }
+
+        .resend-button {
+            height: 44px;
+            white-space: nowrap;
+        }
+
+        .timer {
+            color: var(--secondary-orange);
+            font-weight: 500;
+            font-size: var(--font-size-body-sm);
+        }
+
+        .safety-info {
+            background: #E8F5E8;
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .safety-info__title {
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .safety-info__list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .safety-info__list li {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-body-sm);
+            color: #388E3C;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: var(--space-2xl);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-body-sm);
+            margin: 0 var(--space-md);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-blue);
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: var(--space-lg);
+            font-size: var(--font-size-body-sm);
+            color: var(--text-secondary);
+        }
+
+        .signup-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 767px) {
+            .login-container {
+                padding: var(--space-md);
+            }
+
+            .login-card {
+                padding: var(--space-lg);
+            }
+
+            .auth-method-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .verification-code-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .resend-button {
+                height: auto;
+                padding: 12px var(--space-lg);
+            }
+        }
+
+        /* 새로운 기기 감지 모달 */
+        .device-verification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .device-verification-modal.active {
+            display: flex;
+        }
+
+        .device-modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            max-width: 480px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .device-info {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+        }
+
+        .device-info__item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-body-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- 로그인 헤더 -->
+            <div class="login-header">
+                <div class="login-logo">
+                    🛡️ 안전거래
+                </div>
+                <div class="login-subtitle">
+                    안전하고 신뢰할 수 있는 중고거래
+                </div>
+                <div class="security-indicator">
+                    <span>🔒</span>
+                    <span>다단계 보안 인증</span>
+                </div>
+            </div>
+
+            <!-- 로그인 진행 단계 -->
+            <div class="progress-steps">
+                <div class="progress-step current" id="step-1">
+                    <div class="progress-step__icon">1</div>
+                    <div class="progress-step__label">계정 확인</div>
+                </div>
+                <div class="progress-step" id="step-2">
+                    <div class="progress-step__icon">2</div>
+                    <div class="progress-step__label">보안 인증</div>
+                </div>
+                <div class="progress-step" id="step-3">
+                    <div class="progress-step__icon">3</div>
+                    <div class="progress-step__label">로그인 완료</div>
+                </div>
+            </div>
+
+            <!-- 로그인 실패 경고 (필요시 표시) -->
+            <div class="login-attempts" id="login-attempts" style="display: none;">
+                <strong>⚠️ 로그인 실패 횟수: <span id="attempt-count">0</span>/5</strong><br>
+                5회 실패시 계정이 30분간 잠금됩니다.
+            </div>
+
+            <!-- 1단계: 기본 로그인 폼 -->
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="email" class="form-label">이메일 또는 아이디</label>
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-input focusable"
+                        placeholder="이메일 주소를 입력하세요"
+                        data-validate="email"
+                        required
+                    >
+                    <span class="input-icon">📧</span>
+                    <span class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-input focusable"
+                        placeholder="비밀번호를 입력하세요"
+                        data-validate="password"
+                        required
+                    >
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                        👁️
+                    </button>
+                    <span class="form-error"></span>
+                </div>
+
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <span>로그인 상태 유지</span>
+                    </label>
+                    <a href="#" class="find-password">비밀번호 찾기</a>
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--large" style="width: 100%;" data-loading="true">
+                    <span>로그인</span>
+                </button>
+            </form>
+
+            <!-- 2단계: 2차 인증 -->
+            <div class="two-factor-section" id="two-factor-section">
+                <h3 style="margin-bottom: var(--space-lg); color: var(--primary-blue);">
+                    🔐 2단계 인증
+                </h3>
+
+                <p style="margin-bottom: var(--space-lg); color: var(--text-secondary); font-size: var(--font-size-body-sm);">
+                    계정 보안을 위해 추가 인증이 필요합니다. 인증 방법을 선택해주세요.
+                </p>
+
+                <div class="auth-method-selector">
+                    <div class="auth-method selected" data-method="sms">
+                        <span>📱</span>
+                        <span>SMS 인증</span>
+                    </div>
+                    <div class="auth-method" data-method="email">
+                        <span>📧</span>
+                        <span>이메일 인증</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-target" class="form-label" id="auth-target-label">
+                        인증번호가 발송될 휴대폰 번호
+                    </label>
+                    <input
+                        type="text"
+                        id="auth-target"
+                        class="form-input"
+                        value="010-****-5678"
+                        readonly
+                    >
+                </div>
+
+                <div class="verification-code-group">
+                    <div class="form-group">
+                        <label for="verification-code" class="form-label">인증번호</label>
+                        <input
+                            type="text"
+                            id="verification-code"
+                            class="form-input"
+                            placeholder="6자리 인증번호 입력"
+                            maxlength="6"
+                        >
+                        <span class="form-error"></span>
+                    </div>
+                    <button type="button" class="btn btn--secondary resend-button" onclick="sendVerificationCode()">
+                        인증번호 발송
+                    </button>
+                </div>
+
+                <div class="timer" id="verification-timer" style="display: none;">
+                    남은 시간: <span id="timer-display">3:00</span>
+                </div>
+
+                <button type="button" class="btn btn--primary btn--large" style="width: 100%; margin-top: var(--space-lg);" onclick="verifyCode()">
+                    인증 확인
+                </button>
+            </div>
+
+            <!-- 안전 거래 정보 -->
+            <div class="safety-info">
+                <div class="safety-info__title">
+                    🛡️ 안전한 거래를 위한 보안 시스템
+                </div>
+                <ul class="safety-info__list">
+                    <li>✅ 실시간 사기 패턴 감지</li>
+                    <li>✅ 다단계 사용자 인증</li>
+                    <li>✅ 거래 내역 투명 공개</li>
+                    <li>✅ 24시간 보안 모니터링</li>
+                </ul>
+            </div>
+
+            <!-- 회원가입 링크 -->
+            <div class="signup-link">
+                아직 계정이 없으신가요?
+                <a href="01-회원가입.html">회원가입하기</a>
+            </div>
+
+            <!-- 푸터 링크 -->
+            <div class="footer-links">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">고객센터</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 새로운 기기 감지 모달 -->
+    <div class="device-verification-modal" id="device-verification-modal">
+        <div class="device-modal-content">
+            <h3 style="margin-bottom: var(--space-lg); color: var(--warning);">
+                🔍 새로운 기기에서의 로그인 감지
+            </h3>
+
+            <div class="alert alert--warning">
+                <div class="alert__icon">⚠️</div>
+                <div class="alert__content">
+                    <div class="alert__title">보안 확인 필요</div>
+                    <div class="alert__message">
+                        새로운 기기에서 로그인 시도가 감지되었습니다.
+                        본인이 맞다면 추가 인증을 진행해주세요.
+                    </div>
+                </div>
+            </div>
+
+            <div class="device-info">
+                <h4 style="margin-bottom: var(--space-md);">기기 정보</h4>
+                <div class="device-info__item">
+                    <span>IP 주소:</span>
+                    <span>192.168.1.100</span>
+                </div>
+                <div class="device-info__item">
+                    <span>운영체제:</span>
+                    <span>Windows 11</span>
+                </div>
+                <div class="device-info__item">
+                    <span>브라우저:</span>
+                    <span>Chrome 118.0</span>
+                </div>
+                <div class="device-info__item">
+                    <span>위치:</span>
+                    <span>서울시 강남구</span>
+                </div>
+                <div class="device-info__item">
+                    <span>시간:</span>
+                    <span id="current-time">2024-09-23 15:30:45</span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2" style="margin-top: var(--space-lg);">
+                <button type="button" class="btn btn--secondary" style="flex: 1;" onclick="denyAccess()">
+                    본인이 아님
+                </button>
+                <button type="button" class="btn btn--primary" style="flex: 1;" onclick="confirmDevice()">
+                    본인 확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // 로그인 페이지 전용 JavaScript
+
+        let currentStep = 1;
+        let failedAttempts = 0;
+        let verificationTimer = null;
+        let timeLeft = 180; // 3분
+
+        // 비밀번호 표시/숨김 토글
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentNode.querySelector('.password-toggle');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        // 로그인 폼 제출
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 입력 검증
+            if (!FormValidator.validateEmail(email)) {
+                FormValidator.showError('email', '올바른 이메일 주소를 입력해주세요.');
+                return;
+            }
+
+            if (!FormValidator.validatePassword(password)) {
+                FormValidator.showError('password', '비밀번호는 8자 이상, 영문과 숫자를 포함해야 합니다.');
+                return;
+            }
+
+            // 로딩 시작
+            LoadingManager.start('#login-form button[type="submit"]');
+
+            // 로그인 시뮬레이션
+            setTimeout(() => {
+                LoadingManager.stop('#login-form button[type="submit"]');
+
+                // 로그인 성공 시뮬레이션 (실제로는 서버에서 검증)
+                if (email === 'test@example.com' && password === 'password123') {
+                    // 새로운 기기 감지 시뮬레이션
+                    if (Math.random() > 0.5) {
+                        showDeviceVerification();
+                    } else {
+                        proceedToTwoFactor();
+                    }
+                } else {
+                    // 로그인 실패
+                    handleLoginFailure();
+                }
+            }, 2000);
+        });
+
+        // 로그인 실패 처리
+        function handleLoginFailure() {
+            failedAttempts++;
+
+            const attemptsElement = document.getElementById('login-attempts');
+            const countElement = document.getElementById('attempt-count');
+
+            countElement.textContent = failedAttempts;
+            attemptsElement.style.display = 'block';
+
+            if (failedAttempts >= 5) {
+                NotificationSystem.show('danger', '계정 잠금', '5회 연속 로그인에 실패하여 계정이 30분간 잠금되었습니다.');
+                document.getElementById('login-form').style.display = 'none';
+            } else {
+                NotificationSystem.show('warning', '로그인 실패',
+                    `이메일 또는 비밀번호가 올바르지 않습니다. (${failedAttempts}/5)`);
+            }
+        }
+
+        // 새로운 기기 확인 모달 표시
+        function showDeviceVerification() {
+            document.getElementById('current-time').textContent = new Date().toLocaleString('ko-KR');
+            document.getElementById('device-verification-modal').classList.add('active');
+        }
+
+        // 기기 접근 거부
+        function denyAccess() {
+            document.getElementById('device-verification-modal').classList.remove('active');
+            NotificationSystem.show('info', '로그인 취소', '보안을 위해 로그인이 취소되었습니다.');
+        }
+
+        // 기기 확인 완료
+        function confirmDevice() {
+            document.getElementById('device-verification-modal').classList.remove('active');
+            proceedToTwoFactor();
+        }
+
+        // 2단계 인증으로 진행
+        function proceedToTwoFactor() {
+            // 진행 단계 업데이트
+            updateProgressStep(2);
+
+            // 폼 숨기고 2단계 인증 표시
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('two-factor-section').classList.add('active');
+
+            NotificationSystem.show('info', '2단계 인증', '보안을 위해 추가 인증이 필요합니다.');
+        }
+
+        // 진행 단계 업데이트
+        function updateProgressStep(step) {
+            // 이전 단계들을 완료로 표시
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step-${i}`).classList.add('completed');
+                document.getElementById(`step-${i}`).classList.remove('current');
+            }
+
+            // 현재 단계 표시
+            document.getElementById(`step-${step}`).classList.add('current');
+            currentStep = step;
+        }
+
+        // 인증 방법 선택
+        document.querySelectorAll('.auth-method').forEach(method => {
+            method.addEventListener('click', function() {
+                // 선택 상태 업데이트
+                document.querySelectorAll('.auth-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+
+                const selectedMethod = this.getAttribute('data-method');
+                const targetLabel = document.getElementById('auth-target-label');
+                const targetInput = document.getElementById('auth-target');
+
+                if (selectedMethod === 'sms') {
+                    targetLabel.textContent = '인증번호가 발송될 휴대폰 번호';
+                    targetInput.value = '010-****-5678';
+                } else {
+                    targetLabel.textContent = '인증번호가 발송될 이메일 주소';
+                    targetInput.value = 'test@******.com';
+                }
+            });
+        });
+
+        // 인증번호 발송
+        function sendVerificationCode() {
+            const button = document.querySelector('.resend-button');
+            const selectedMethod = document.querySelector('.auth-method.selected').getAttribute('data-method');
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.textContent = '발송 중...';
+
+            setTimeout(() => {
+                button.textContent = '재발송';
+                button.disabled = false;
+
+                // 타이머 시작
+                startVerificationTimer();
+
+                const methodText = selectedMethod === 'sms' ? 'SMS' : '이메일';
+                NotificationSystem.show('success', '인증번호 발송',
+                    `${methodText}로 인증번호가 발송되었습니다.`);
+            }, 2000);
+        }
+
+        // 인증번호 타이머 시작
+        function startVerificationTimer() {
+            timeLeft = 180; // 3분 리셋
+            const timerElement = document.getElementById('verification-timer');
+            const displayElement = document.getElementById('timer-display');
+
+            timerElement.style.display = 'block';
+
+            verificationTimer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                displayElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(verificationTimer);
+                    timerElement.style.display = 'none';
+                    NotificationSystem.show('warning', '인증번호 만료', '인증번호가 만료되었습니다. 재발송해주세요.');
+                }
+            }, 1000);
+        }
+
+        // 인증번호 확인
+        function verifyCode() {
+            const code = document.getElementById('verification-code').value;
+
+            if (!code || code.length !== 6) {
+                FormValidator.showError('verification-code', '6자리 인증번호를 입력해주세요.');
+                return;
+            }
+
+            // 인증 확인 시뮬레이션
+            LoadingManager.start('.two-factor-section button');
+
+            setTimeout(() => {
+                LoadingManager.stop('.two-factor-section button');
+
+                // 인증 성공 시뮬레이션
+                if (code === '123456') {
+                    loginSuccess();
+                } else {
+                    FormValidator.showError('verification-code', '인증번호가 올바르지 않습니다.');
+                }
+            }, 1500);
+        }
+
+        // 로그인 성공
+        function loginSuccess() {
+            // 타이머 정리
+            if (verificationTimer) {
+                clearInterval(verificationTimer);
+            }
+
+            // 진행 단계 완료
+            updateProgressStep(3);
+
+            // 성공 메시지
+            NotificationSystem.show('success', '로그인 성공', '안전하게 로그인되었습니다.');
+
+            // 2초 후 대시보드로 이동
+            setTimeout(() => {
+                window.location.href = '14-메인대시보드.html';
+            }, 2000);
+        }
+
+        // 페이지 로드시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 테스트용 자동 발송 버튼 (개발 편의)
+            setTimeout(() => {
+                const sendButton = document.querySelector('.resend-button');
+                if (sendButton) {
+                    sendButton.click();
+                }
+            }, 1000);
+
+            // 인증번호 입력시 자동 검증
+            document.getElementById('verification-code').addEventListener('input', function() {
+                if (this.value.length === 6) {
+                    FormValidator.clearError('verification-code');
+                }
+            });
+
+            console.log('Login page initialized');
+        });
+    </script>
+</body>
+</html>

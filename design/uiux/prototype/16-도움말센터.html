@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도움말 센터 - 중고거래 플랫폼</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 도움말 센터 전용 스타일 */
+        .help-hero {
+            background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+            color: white;
+            padding: var(--space-3xl) 0 var(--space-2xl);
+            text-align: center;
+        }
+
+        .help-hero__title {
+            font-size: var(--font-size-h1);
+            font-weight: bold;
+            margin-bottom: var(--space-md);
+        }
+
+        .help-hero__subtitle {
+            font-size: var(--font-size-body-lg);
+            opacity: 0.9;
+            margin-bottom: var(--space-xl);
+        }
+
+        .help-search {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .help-search__input {
+            width: 100%;
+            padding: var(--space-md) var(--space-xl) var(--space-md) 60px;
+            border: none;
+            border-radius: 50px;
+            font-size: var(--font-size-body-lg);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-search__icon {
+            position: absolute;
+            left: var(--space-lg);
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .help-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0;
+        }
+
+        .help-category {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .help-category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .help-category__icon {
+            width: 64px;
+            height: 64px;
+            background: var(--safety-excellent-bg);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: var(--space-md);
+            color: var(--safety-excellent-primary);
+        }
+
+        .help-category--safety .help-category__icon {
+            background: var(--safety-excellent-bg);
+            color: var(--safety-excellent-primary);
+        }
+
+        .help-category--guide .help-category__icon {
+            background: var(--safety-good-bg);
+            color: var(--safety-good-primary);
+        }
+
+        .help-category--faq .help-category__icon {
+            background: var(--safety-normal-bg);
+            color: var(--safety-normal-primary);
+        }
+
+        .help-category--emergency .help-category__icon {
+            background: var(--safety-warning-bg);
+            color: var(--safety-warning-primary);
+        }
+
+        .help-category__title {
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .help-category__desc {
+            font-size: var(--font-size-body);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-md);
+        }
+
+        .help-category__items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .help-category__item {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .help-category__item:last-child {
+            border-bottom: none;
+        }
+
+        .help-category__link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--font-size-body);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .help-category__link:hover {
+            color: var(--dark-blue);
+        }
+
+        .help-category__link::after {
+            content: '→';
+            opacity: 0.6;
+        }
+
+        .emergency-section {
+            background: var(--safety-warning-bg);
+            border: 2px solid var(--safety-warning-primary);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            margin: var(--space-2xl) 0;
+            text-align: center;
+        }
+
+        .emergency-section__icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+        }
+
+        .emergency-section__title {
+            font-size: var(--font-size-h3);
+            font-weight: bold;
+            color: var(--safety-warning-primary);
+            margin-bottom: var(--space-md);
+        }
+
+        .emergency-section__desc {
+            font-size: var(--font-size-body-lg);
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            line-height: 1.6;
+        }
+
+        .emergency-contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .emergency-contact {
+            background: white;
+            padding: var(--space-md);
+            border-radius: 12px;
+            border: 1px solid var(--safety-warning-primary);
+        }
+
+        .emergency-contact__title {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+        }
+
+        .emergency-contact__number {
+            font-size: var(--font-size-h5);
+            font-weight: bold;
+            color: var(--safety-warning-primary);
+        }
+
+        .quick-links {
+            background: #F8F9FA;
+            padding: var(--space-xl);
+            border-radius: 16px;
+            margin: var(--space-2xl) 0;
+        }
+
+        .quick-links__title {
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .quick-links__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .quick-link {
+            background: white;
+            padding: var(--space-md);
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .quick-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .quick-link__icon {
+            font-size: 24px;
+            margin-bottom: var(--space-sm);
+            color: var(--primary-blue);
+        }
+
+        .quick-link__text {
+            font-size: var(--font-size-body-sm);
+            font-weight: 500;
+        }
+
+        .contact-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: var(--space-2xl) 0;
+            text-align: center;
+        }
+
+        .contact-info {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .contact-item__title {
+            font-size: var(--font-size-h6);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .contact-item__content {
+            font-size: var(--font-size-body);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 접근성 강화 */
+        .high-contrast {
+            background: var(--text-primary);
+            color: white;
+        }
+
+        .large-text {
+            font-size: 120%;
+        }
+
+        /* 고령자 배려 */
+        @media (max-width: 767px) {
+            .help-hero__title {
+                font-size: var(--font-size-h2);
+            }
+
+            .help-categories {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .help-category {
+                padding: var(--space-lg);
+            }
+
+            .help-category__icon {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+
+            .emergency-contacts {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+        }
+
+        /* 포커스 강화 (키보드 네비게이션) */
+        .help-category:focus-within,
+        .quick-link:focus,
+        .help-category__link:focus {
+            outline: 3px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        /* 검색 결과 스타일 */
+        .search-results {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-top: var(--space-md);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-result-item:hover {
+            background: var(--background);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 500;
+            color: var(--primary-blue);
+            margin-bottom: var(--space-xs);
+        }
+
+        .search-result-desc {
+            font-size: var(--font-size-body-sm);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="14-메인대시보드.html" class="logo">중고거래플랫폼</a>
+                <nav class="nav">
+                    <a href="14-메인대시보드.html" class="nav-link">홈</a>
+                    <a href="10-상품목록.html" class="nav-link">상품검색</a>
+                    <a href="9-상품등록.html" class="nav-link">판매하기</a>
+                    <a href="13-거래이력.html" class="nav-link">거래내역</a>
+                    <a href="16-도움말센터.html" class="nav-link active">도움말</a>
+                </nav>
+                <div class="user-menu">
+                    <a href="15-알림센터.html" class="nav-link">🔔 알림</a>
+                    <a href="3-프로필관리.html" class="nav-link">내 정보</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        <!-- 히어로 섹션 -->
+        <section class="help-hero">
+            <div class="container">
+                <h1 class="help-hero__title">도움말 센터</h1>
+                <p class="help-hero__subtitle">안전한 거래를 위한 모든 정보를 제공합니다</p>
+
+                <!-- 검색바 -->
+                <div class="help-search">
+                    <div class="help-search__icon">🔍</div>
+                    <input
+                        type="text"
+                        class="help-search__input"
+                        placeholder="궁금한 내용을 검색해보세요 (예: 안전거래, 사기방지, 환불)"
+                        id="helpSearch"
+                        aria-label="도움말 검색"
+                    >
+                    <div class="search-results" id="searchResults" role="listbox" aria-label="검색 결과"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 긴급 상황 섹션 -->
+        <section class="emergency-section">
+            <div class="container">
+                <div class="emergency-section__icon">🚨</div>
+                <h2 class="emergency-section__title">긴급 상황이신가요?</h2>
+                <p class="emergency-section__desc">
+                    사기 의심, 위험한 상황, 긴급한 도움이 필요하시면<br>
+                    즉시 아래 연락처로 연락하세요.
+                </p>
+                <div class="emergency-contacts">
+                    <div class="emergency-contact">
+                        <div class="emergency-contact__title">플랫폼 신고센터</div>
+                        <div class="emergency-contact__number">1588-0000</div>
+                    </div>
+                    <div class="emergency-contact">
+                        <div class="emergency-contact__title">경찰청 신고</div>
+                        <div class="emergency-contact__number">112</div>
+                    </div>
+                    <div class="emergency-contact">
+                        <div class="emergency-contact__title">소비자보호원</div>
+                        <div class="emergency-contact__number">1372</div>
+                    </div>
+                </div>
+                <div style="margin-top: var(--space-lg);">
+                    <a href="7-신고접수.html" class="btn btn--danger btn--large">
+                        🚨 즉시 신고하기
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 주요 카테고리 -->
+        <section class="container">
+            <div class="help-categories">
+                <!-- 안전 거래 가이드 -->
+                <div class="help-category help-category--safety" tabindex="0">
+                    <div class="help-category__icon">🛡️</div>
+                    <h3 class="help-category__title">안전 거래 가이드</h3>
+                    <p class="help-category__desc">
+                        사기를 예방하고 안전하게 거래하는 방법을 알아보세요.
+                        특히 취약계층을 위한 특별 보호 방법도 제공합니다.
+                    </p>
+                    <ul class="help-category__items">
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">사기 유형별 예방법</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">안전한 만남 장소 선택</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">여성·고령자 특별 보호</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">사기 신고 방법</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="5-안전도조회.html" class="help-category__link">안전도 시스템 이해하기</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 서비스 이용 가이드 -->
+                <div class="help-category help-category--guide" tabindex="0">
+                    <div class="help-category__icon">📖</div>
+                    <h3 class="help-category__title">서비스 이용방법</h3>
+                    <p class="help-category__desc">
+                        처음 사용하시거나 기능이 궁금하신 분들을 위한
+                        쉽고 자세한 이용 가이드입니다.
+                    </p>
+                    <ul class="help-category__items">
+                        <li class="help-category__item">
+                            <a href="1-회원가입.html" class="help-category__link">회원가입과 인증</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="9-상품등록.html" class="help-category__link">상품 등록하기</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="10-상품목록.html" class="help-category__link">상품 검색과 구매</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="12-거래채팅.html" class="help-category__link">거래 채팅 사용법</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="3-프로필관리.html" class="help-category__link">프로필 관리</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 자주 묻는 질문 -->
+                <div class="help-category help-category--faq" tabindex="0">
+                    <div class="help-category__icon">❓</div>
+                    <h3 class="help-category__title">자주 묻는 질문</h3>
+                    <p class="help-category__desc">
+                        다른 사용자들이 자주 묻는 질문과 답변을
+                        카테고리별로 정리했습니다.
+                    </p>
+                    <ul class="help-category__items">
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">회원가입과 인증 관련</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">거래와 결제 관련</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">안전도 점수 관련</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">신고와 분쟁 해결</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">기타 서비스 문의</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 고객 지원 -->
+                <div class="help-category help-category--emergency" tabindex="0">
+                    <div class="help-category__icon">📞</div>
+                    <h3 class="help-category__title">고객 지원</h3>
+                    <p class="help-category__desc">
+                        전화, 채팅, 이메일을 통해 언제든지
+                        도움을 받으실 수 있습니다.
+                    </p>
+                    <ul class="help-category__items">
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">전화 상담 (1588-0000)</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">실시간 채팅 상담</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">이메일 문의</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="#" class="help-category__link">공지사항 확인</a>
+                        </li>
+                        <li class="help-category__item">
+                            <a href="8-신고처리현황.html" class="help-category__link">신고 처리 현황</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 빠른 링크 -->
+        <section class="quick-links">
+            <div class="container">
+                <h2 class="quick-links__title">빠른 링크</h2>
+                <div class="quick-links__grid">
+                    <a href="1-회원가입.html" class="quick-link">
+                        <div class="quick-link__icon">👤</div>
+                        <div class="quick-link__text">회원가입</div>
+                    </a>
+                    <a href="9-상품등록.html" class="quick-link">
+                        <div class="quick-link__icon">📝</div>
+                        <div class="quick-link__text">상품등록</div>
+                    </a>
+                    <a href="5-안전도조회.html" class="quick-link">
+                        <div class="quick-link__icon">🛡️</div>
+                        <div class="quick-link__text">안전도확인</div>
+                    </a>
+                    <a href="7-신고접수.html" class="quick-link">
+                        <div class="quick-link__icon">🚨</div>
+                        <div class="quick-link__text">신고하기</div>
+                    </a>
+                    <a href="12-거래채팅.html" class="quick-link">
+                        <div class="quick-link__icon">💬</div>
+                        <div class="quick-link__text">채팅상담</div>
+                    </a>
+                    <a href="3-프로필관리.html" class="quick-link">
+                        <div class="quick-link__icon">⚙️</div>
+                        <div class="quick-link__text">설정</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 고객 지원 정보 푸터 -->
+    <footer class="contact-footer">
+        <div class="container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h3 class="contact-item__title">📞 전화 상담</h3>
+                    <div class="contact-item__content">
+                        고객센터: 1588-0000<br>
+                        운영시간: 평일 09:00-18:00<br>
+                        (토요일, 일요일, 공휴일 휴무)
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <h3 class="contact-item__title">💬 실시간 채팅</h3>
+                    <div class="contact-item__content">
+                        24시간 언제든지 채팅으로<br>
+                        문의하실 수 있습니다.<br>
+                        빠른 답변을 받아보세요.
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <h3 class="contact-item__title">📧 이메일 문의</h3>
+                    <div class="contact-item__content">
+                        support@safetrade.kr<br>
+                        상세한 문의사항은<br>
+                        이메일로 보내주세요.
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border);">
+                <p style="color: var(--text-secondary); font-size: var(--font-size-body-sm);">
+                    © 2024 중고거래플랫폼. 모든 권리 보유. |
+                    <a href="#" style="color: var(--primary-blue);">개인정보처리방침</a> |
+                    <a href="#" style="color: var(--primary-blue);">이용약관</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="common.js"></script>
+    <script>
+        // 도움말 센터 전용 스크립트
+        const HelpCenter = {
+            // 검색 데이터
+            searchData: [
+                { title: '사기 의심 상황 대처법', desc: '의심스러운 거래 상황에서 어떻게 대처해야 하는지 알아보세요', category: 'safety' },
+                { title: '안전한 거래 장소 선택', desc: '공공장소에서 안전하게 거래하는 방법', category: 'safety' },
+                { title: '여성 사용자 보호 가이드', desc: '여성 사용자를 위한 특별 안전 수칙', category: 'safety' },
+                { title: '고령자 거래 주의사항', desc: '60세 이상 고령자를 위한 안전 거래 가이드', category: 'safety' },
+                { title: '회원가입 인증 방법', desc: '휴대폰, 이메일, 신분증 인증 방법', category: 'guide' },
+                { title: '상품 등록하는 법', desc: '사진 업로드부터 거래 조건 설정까지', category: 'guide' },
+                { title: '안전도 점수 올리는 방법', desc: '안전도 점수를 높이는 다양한 방법', category: 'safety' },
+                { title: '채팅으로 거래하기', desc: '안전한 채팅 거래 방법과 주의사항', category: 'guide' },
+                { title: '신고하는 방법', desc: '문제 상황 발생시 신고 절차', category: 'faq' },
+                { title: '결제 관련 문의', desc: '결제 방법과 환불 정책', category: 'faq' },
+                { title: '계정 보안 설정', desc: '2단계 인증과 비밀번호 관리', category: 'guide' },
+                { title: '거래 분쟁 해결', desc: '거래 중 문제 발생시 해결 방법', category: 'faq' }
+            ],
+
+            // 검색 기능 초기화
+            initSearch() {
+                const searchInput = document.getElementById('helpSearch');
+                const searchResults = document.getElementById('searchResults');
+
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim().toLowerCase();
+
+                    if (query.length < 2) {
+                        this.hideSearchResults();
+                        return;
+                    }
+
+                    const results = this.searchData.filter(item =>
+                        item.title.toLowerCase().includes(query) ||
+                        item.desc.toLowerCase().includes(query)
+                    ).slice(0, 5); // 최대 5개 결과
+
+                    this.showSearchResults(results);
+                });
+
+                // 외부 클릭시 검색 결과 숨기기
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.help-search')) {
+                        this.hideSearchResults();
+                    }
+                });
+
+                // 키보드 네비게이션
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.hideSearchResults();
+                    }
+                });
+            },
+
+            // 검색 결과 표시
+            showSearchResults(results) {
+                const searchResults = document.getElementById('searchResults');
+
+                if (results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="search-result-item">
+                            <div class="search-result-title">검색 결과가 없습니다</div>
+                            <div class="search-result-desc">다른 키워드로 검색해보세요</div>
+                        </div>
+                    `;
+                } else {
+                    searchResults.innerHTML = results.map((item, index) => `
+                        <div class="search-result-item" tabindex="0" role="option" data-index="${index}">
+                            <div class="search-result-title">${item.title}</div>
+                            <div class="search-result-desc">${item.desc}</div>
+                        </div>
+                    `).join('');
+
+                    // 검색 결과 클릭 이벤트
+                    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const title = item.querySelector('.search-result-title').textContent;
+                            this.selectSearchResult(title);
+                        });
+
+                        item.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                const title = item.querySelector('.search-result-title').textContent;
+                                this.selectSearchResult(title);
+                            }
+                        });
+                    });
+                }
+
+                searchResults.style.display = 'block';
+            },
+
+            // 검색 결과 숨기기
+            hideSearchResults() {
+                const searchResults = document.getElementById('searchResults');
+                searchResults.style.display = 'none';
+            },
+
+            // 검색 결과 선택
+            selectSearchResult(title) {
+                document.getElementById('helpSearch').value = title;
+                this.hideSearchResults();
+
+                // 상세 페이지로 이동하거나 관련 콘텐츠 표시
+                NotificationSystem.show('info', '검색 완료', `"${title}" 관련 정보를 찾았습니다.`);
+            },
+
+            // 카테고리 클릭 추적
+            initCategoryTracking() {
+                document.querySelectorAll('.help-category').forEach(category => {
+                    category.addEventListener('click', (e) => {
+                        if (e.target.closest('.help-category__link')) return; // 링크 클릭은 제외
+
+                        const title = category.querySelector('.help-category__title').textContent;
+                        console.log(`Category clicked: ${title}`);
+
+                        // 접근성: 카테고리 확장/축소
+                        category.classList.toggle('expanded');
+                    });
+                });
+            },
+
+            // 접근성 강화
+            initAccessibility() {
+                // 키보드 네비게이션 지원
+                document.querySelectorAll('.help-category').forEach(category => {
+                    category.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            category.click();
+                        }
+                    });
+                });
+
+                // 포커스 트랩 (검색 결과에서)
+                const searchInput = document.getElementById('helpSearch');
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        const firstResult = document.querySelector('.search-result-item');
+                        if (firstResult) firstResult.focus();
+                    }
+                });
+
+                // 고대비 모드 토글 (접근성)
+                const addAccessibilityButton = () => {
+                    const button = document.createElement('button');
+                    button.textContent = '고대비 모드';
+                    button.className = 'btn btn--secondary';
+                    button.style.cssText = `
+                        position: fixed;
+                        top: 100px;
+                        right: 20px;
+                        z-index: 1000;
+                        font-size: 14px;
+                        padding: 8px 12px;
+                    `;
+
+                    button.addEventListener('click', () => {
+                        document.body.classList.toggle('high-contrast');
+                        button.textContent = document.body.classList.contains('high-contrast')
+                            ? '일반 모드' : '고대비 모드';
+                    });
+
+                    document.body.appendChild(button);
+                };
+
+                // 접근성 버튼 추가 (개발 환경에서만)
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    addAccessibilityButton();
+                }
+            },
+
+            // 초기화
+            init() {
+                this.initSearch();
+                this.initCategoryTracking();
+                this.initAccessibility();
+
+                console.log('Help Center initialized');
+            }
+        };
+
+        // DOM 로드 후 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            HelpCenter.init();
+
+            // 환영 메시지 (처음 방문시)
+            const isFirstVisit = !Storage.get('help_center_visited');
+            if (isFirstVisit) {
+                setTimeout(() => {
+                    NotificationSystem.show(
+                        'info',
+                        '도움말 센터에 오신 것을 환영합니다!',
+                        '궁금한 내용을 검색하거나 카테고리별로 찾아보세요.',
+                        8000
+                    );
+                    Storage.set('help_center_visited', true);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

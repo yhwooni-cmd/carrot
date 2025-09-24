@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>캐럿 - 안전한 중고거래 플랫폼</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 대시보드 전용 스타일 */
+        .dashboard-container {
+            padding: var(--space-lg) 0;
+        }
+
+        .dashboard-header {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+            color: white;
+            padding: var(--space-2xl);
+            border-radius: 16px;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .welcome-title {
+            font-size: var(--font-size-h2);
+            font-weight: bold;
+            margin-bottom: var(--space-sm);
+        }
+
+        .welcome-subtitle {
+            font-size: var(--font-size-body-lg);
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2xl);
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        /* 안전도 위젯 */
+        .safety-widget {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--safety-excellent-primary);
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .widget-title {
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .safety-improvement {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            background: #E8F5E8;
+            border-radius: 8px;
+            border-left: 4px solid var(--safety-excellent-primary);
+        }
+
+        .improvement-title {
+            font-weight: 600;
+            color: var(--safety-excellent-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .improvement-text {
+            font-size: var(--font-size-body-sm);
+            color: #2E7D32;
+        }
+
+        /* 거래 현황 위젯 */
+        .transaction-widget {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-tabs {
+            display: flex;
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: var(--space-md) var(--space-lg);
+            font-size: var(--font-size-body);
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: var(--space-md);
+            transition: all 0.2s ease;
+        }
+
+        .transaction-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .transaction-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: var(--space-md);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .transaction-price {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .transaction-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+
+        .status-pending {
+            background: #FFF8E1;
+            color: #F57C00;
+        }
+
+        /* 알림 위젯 */
+        .notification-widget {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: var(--space-md);
+            border-radius: 8px;
+            margin-bottom: var(--space-md);
+            transition: background-color 0.2s ease;
+        }
+
+        .notification-item:hover {
+            background: var(--background);
+        }
+
+        .notification-item.unread {
+            background: #E3F2FD;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: var(--space-md);
+            font-size: 12px;
+        }
+
+        .notification-icon.warning {
+            background: #FFF3E0;
+            color: var(--secondary-orange);
+        }
+
+        .notification-icon.info {
+            background: #E3F2FD;
+            color: var(--primary-blue);
+        }
+
+        .notification-icon.success {
+            background: #E8F5E8;
+            color: var(--success);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-body-sm);
+        }
+
+        .notification-message {
+            font-size: var(--font-size-caption);
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: var(--space-xs);
+        }
+
+        .notification-time {
+            font-size: 10px;
+            color: var(--text-disabled);
+        }
+
+        /* 추천 상품 위젯 */
+        .recommended-widget {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .product-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: var(--space-md);
+        }
+
+        .product-title {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-body-sm);
+        }
+
+        .product-price {
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .product-seller {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--font-size-caption);
+        }
+
+        .seller-safety {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .safety-mini-score {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .safety-excellent {
+            background: var(--safety-excellent-bg);
+            color: var(--safety-excellent-primary);
+        }
+
+        .safety-good {
+            background: var(--safety-good-bg);
+            color: var(--safety-good-primary);
+        }
+
+        .safety-warning {
+            background: var(--safety-warning-bg);
+            color: var(--safety-warning-primary);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1023px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+
+            .sidebar-content {
+                order: -1;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 767px) {
+            .welcome-section {
+                padding: var(--space-lg);
+            }
+
+            .welcome-title {
+                font-size: var(--font-size-h3);
+            }
+
+            .dashboard-container {
+                padding: var(--space-md) 0;
+            }
+
+            .widget-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-sm);
+            }
+
+            .transaction-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <a href="01-대시보드.html" class="logo" aria-label="캐럿 홈페이지로 이동">
+                    🥕 캐럿
+                </a>
+
+                <nav class="nav" role="navigation" aria-label="주 메뉴">
+                    <a href="10-상품목록.html" class="nav-link" data-page="products">상품 검색</a>
+                    <a href="13-거래이력.html" class="nav-link" data-page="transactions">거래 이력</a>
+                    <a href="12-거래채팅.html" class="nav-link" data-page="chat">채팅</a>
+                    <a href="06-안전도대시보드.html" class="nav-link" data-page="safety">안전도</a>
+                    <a href="16-도움말센터.html" class="nav-link" data-page="help">도움말</a>
+                </nav>
+
+                <div class="user-menu">
+                    <button class="btn btn--secondary" onclick="navigateToNotifications()" aria-label="알림 센터">
+                        📢 알림 <span id="notification-count" class="notification-badge">3</span>
+                    </button>
+                    <div class="user-info">
+                        <span class="user-name">김안전님</span>
+                        <a href="03-프로필관리.html" class="btn btn--primary" aria-label="프로필 관리">프로필</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="dashboard-container" role="main">
+        <div class="container">
+            <!-- 환영 섹션 -->
+            <section class="welcome-section" aria-labelledby="welcome-title">
+                <h1 id="welcome-title" class="welcome-title">안전한 거래를 위한 당신의 파트너</h1>
+                <p class="welcome-subtitle">캐럿과 함께 신뢰할 수 있는 중고거래를 경험해보세요.</p>
+            </section>
+
+            <!-- 대시보드 그리드 -->
+            <div class="dashboard-grid">
+                <!-- 메인 콘텐츠 영역 -->
+                <div class="main-content">
+                    <!-- 안전도 위젯 -->
+                    <section class="safety-widget" aria-labelledby="safety-title">
+                        <div class="widget-header">
+                            <h2 id="safety-title" class="widget-title">내 안전도 현황</h2>
+                            <a href="06-안전도대시보드.html" class="btn btn--secondary" aria-label="안전도 상세 보기">상세 보기</a>
+                        </div>
+
+                        <div id="safety-score-display" aria-live="polite">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+
+                        <div class="safety-improvement">
+                            <div class="improvement-title">💡 안전도 향상 팁</div>
+                            <div class="improvement-text">
+                                추가 인증을 완료하시면 안전도가 향상됩니다.
+                                <a href="04-인증관리.html" style="color: var(--safety-excellent-primary); font-weight: 600;">인증 관리 바로가기</a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 거래 현황 위젯 -->
+                    <section class="transaction-widget" aria-labelledby="transaction-title">
+                        <div class="widget-header">
+                            <h2 id="transaction-title" class="widget-title">거래 현황</h2>
+                            <a href="13-거래이력.html" class="btn btn--secondary" aria-label="전체 거래 이력 보기">전체 보기</a>
+                        </div>
+
+                        <div class="transaction-tabs" role="tablist">
+                            <button class="tab-button active" role="tab" aria-selected="true" aria-controls="active-transactions" onclick="showTransactionTab('active')">
+                                진행 중 거래
+                            </button>
+                            <button class="tab-button" role="tab" aria-selected="false" aria-controls="interest-products" onclick="showTransactionTab('interest')">
+                                관심 상품
+                            </button>
+                        </div>
+
+                        <div id="active-transactions" role="tabpanel" aria-labelledby="active-tab">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+
+                        <div id="interest-products" role="tabpanel" aria-labelledby="interest-tab" style="display: none;">
+                            <p class="text-center" style="color: var(--text-secondary); padding: var(--space-lg);">
+                                관심 있는 상품이 없습니다.
+                                <a href="10-상품목록.html" style="color: var(--primary-blue);">상품 둘러보기</a>
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- 추천 상품 위젯 -->
+                    <section class="recommended-widget" aria-labelledby="recommended-title">
+                        <div class="widget-header">
+                            <h2 id="recommended-title" class="widget-title">추천 상품</h2>
+                            <a href="10-상품목록.html" class="btn btn--secondary" aria-label="더 많은 상품 보기">더 보기</a>
+                        </div>
+
+                        <div class="product-grid" id="recommended-products">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 사이드바 콘텐츠 -->
+                <aside class="sidebar-content">
+                    <!-- 알림 위젯 -->
+                    <section class="notification-widget" aria-labelledby="notification-title">
+                        <div class="widget-header">
+                            <h2 id="notification-title" class="widget-title">최근 알림</h2>
+                            <a href="15-알림센터.html" class="btn btn--secondary" aria-label="알림 센터로 이동">전체 보기</a>
+                        </div>
+
+                        <div id="recent-notifications" aria-live="polite">
+                            <!-- JavaScript로 동적 생성 -->
+                        </div>
+                    </section>
+
+                    <!-- 안전 가이드 위젯 -->
+                    <section class="notification-widget" aria-labelledby="safety-guide-title">
+                        <div class="widget-header">
+                            <h2 id="safety-guide-title" class="widget-title">안전 거래 가이드</h2>
+                        </div>
+
+                        <div class="notification-item">
+                            <div class="notification-icon info">📋</div>
+                            <div class="notification-content">
+                                <div class="notification-title">안전한 거래 체크리스트</div>
+                                <div class="notification-message">거래 전 반드시 확인해야 할 사항들을 점검해보세요.</div>
+                                <a href="16-도움말센터.html" style="font-size: 11px; color: var(--primary-blue);">가이드 보기</a>
+                            </div>
+                        </div>
+
+                        <div class="notification-item">
+                            <div class="notification-icon warning">⚠️</div>
+                            <div class="notification-content">
+                                <div class="notification-title">사기 예방 팁</div>
+                                <div class="notification-message">사기 패턴을 미리 알고 안전한 거래를 하세요.</div>
+                                <a href="16-도움말센터.html" style="font-size: 11px; color: var(--primary-blue);">자세히 보기</a>
+                            </div>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- 접근성: 건너뛰기 링크 -->
+    <a href="#main-content" class="sr-only focusable" style="position: absolute; top: -40px; left: 6px; background: var(--primary-blue); color: white; padding: 8px; text-decoration: none; z-index: 1000;">
+        메인 콘텐츠로 바로가기
+    </a>
+
+    <script src="common.js"></script>
+    <script>
+        // 대시보드 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            renderSafetyScore();
+            renderActiveTransactions();
+            renderRecommendedProducts();
+            renderRecentNotifications();
+            updateNotificationCount();
+        }
+
+        // 안전도 렌더링
+        function renderSafetyScore() {
+            const user = AppState.currentUser;
+            const safetyHTML = Utils.createSafetyScore(user.safetyScore, true, user.badges);
+            document.getElementById('safety-score-display').innerHTML = safetyHTML;
+        }
+
+        // 진행 중 거래 렌더링
+        function renderActiveTransactions() {
+            const chats = AppState.sampleData.chats;
+            const container = document.getElementById('active-transactions');
+
+            if (chats.length === 0) {
+                container.innerHTML = `
+                    <p class="text-center" style="color: var(--text-secondary); padding: var(--space-lg);">
+                        진행 중인 거래가 없습니다.
+                        <a href="10-상품목록.html" style="color: var(--primary-blue);">상품 둘러보기</a>
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = chats.map(chat => {
+                const product = AppState.sampleData.products.find(p => p.id === chat.productId);
+                if (!product) return '';
+
+                return `
+                    <div class="transaction-item" onclick="navigateToChat('${chat.id}')" role="button" tabindex="0"
+                         onkeypress="if(event.key==='Enter') navigateToChat('${chat.id}')"
+                         aria-label="${product.title} 채팅방으로 이동">
+                        <img src="${product.images[0]}" alt="${product.title}" class="transaction-image">
+                        <div class="transaction-info">
+                            <div class="transaction-title">${product.title}</div>
+                            <div class="transaction-price">${Utils.formatPrice(product.price)}</div>
+                            <div style="margin-top: var(--space-xs); display: flex; align-items: center; gap: var(--space-sm);">
+                                <span style="font-size: var(--font-size-caption); color: var(--text-secondary);">
+                                    ${chat.partnerName}
+                                </span>
+                                <span class="safety-mini-score safety-${Utils.getSafetyLevel(chat.partnerSafety)}">
+                                    ${chat.partnerSafety}점
+                                </span>
+                                ${chat.unreadCount > 0 ? `
+                                    <span class="transaction-status status-pending">
+                                        새 메시지 ${chat.unreadCount}개
+                                    </span>
+                                ` : `
+                                    <span class="transaction-status status-active">
+                                        진행 중
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 추천 상품 렌더링
+        function renderRecommendedProducts() {
+            const products = AppState.sampleData.products;
+            const container = document.getElementById('recommended-products');
+
+            container.innerHTML = products.map(product => `
+                <div class="product-card" onclick="navigateToProduct('${product.id}')" role="button" tabindex="0"
+                     onkeypress="if(event.key==='Enter') navigateToProduct('${product.id}')"
+                     aria-label="${product.title} 상품 상세 보기">
+                    <img src="${product.images[0]}" alt="${product.title}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-title">${product.title}</div>
+                        <div class="product-price">${Utils.formatPrice(product.price)}</div>
+                        <div class="product-seller">
+                            <span style="color: var(--text-secondary);">${product.seller.name}</span>
+                            <div class="seller-safety">
+                                <span class="safety-mini-score safety-${product.seller.safetyLevel}">
+                                    ${product.seller.safetyScore}점
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 최근 알림 렌더링
+        function renderRecentNotifications() {
+            const notifications = AppState.sampleData.notifications.slice(0, 3);
+            const container = document.getElementById('recent-notifications');
+
+            container.innerHTML = notifications.map(notification => `
+                <div class="notification-item ${notification.isRead ? '' : 'unread'}"
+                     onclick="markAsRead('${notification.id}')" role="button" tabindex="0"
+                     onkeypress="if(event.key==='Enter') markAsRead('${notification.id}')"
+                     aria-label="${notification.title} 알림 ${notification.isRead ? '읽음' : '읽지 않음'}">
+                    <div class="notification-icon ${notification.type}">
+                        ${notification.type === 'warning' ? '⚠️' :
+                          notification.type === 'success' ? '✅' : 'ℹ️'}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-time">${notification.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 알림 개수 업데이트
+        function updateNotificationCount() {
+            const unreadCount = AppState.sampleData.notifications.filter(n => !n.isRead).length;
+            const badge = document.getElementById('notification-count');
+            if (badge) {
+                badge.textContent = unreadCount;
+                badge.style.display = unreadCount > 0 ? 'inline' : 'none';
+            }
+        }
+
+        // 거래 탭 전환
+        function showTransactionTab(tabName) {
+            // 탭 버튼 상태 업데이트
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+                button.setAttribute('aria-selected', 'false');
+            });
+
+            event.target.classList.add('active');
+            event.target.setAttribute('aria-selected', 'true');
+
+            // 탭 패널 표시/숨김
+            document.getElementById('active-transactions').style.display = tabName === 'active' ? 'block' : 'none';
+            document.getElementById('interest-products').style.display = tabName === 'interest' ? 'block' : 'none';
+        }
+
+        // 네비게이션 함수들
+        function navigateToChat(chatId) {
+            console.log(`Navigating to chat: ${chatId}`);
+            window.location.href = '12-거래채팅.html';
+        }
+
+        function navigateToProduct(productId) {
+            console.log(`Navigating to product: ${productId}`);
+            window.location.href = '11-상품상세.html';
+        }
+
+        function navigateToNotifications() {
+            window.location.href = '15-알림센터.html';
+        }
+
+        function markAsRead(notificationId) {
+            // 알림을 읽음으로 표시
+            const notification = AppState.sampleData.notifications.find(n => n.id === notificationId);
+            if (notification) {
+                notification.isRead = true;
+                renderRecentNotifications();
+                updateNotificationCount();
+            }
+        }
+
+        // 키보드 접근성 지원
+        document.addEventListener('keydown', function(e) {
+            // Alt + 1: 메인 콘텐츠로 포커스
+            if (e.altKey && e.key === '1') {
+                e.preventDefault();
+                document.querySelector('.welcome-section').focus();
+            }
+
+            // Alt + 2: 네비게이션으로 포커스
+            if (e.altKey && e.key === '2') {
+                e.preventDefault();
+                document.querySelector('.nav-link').focus();
+            }
+        });
+
+        // 안전도 향상 알림 (5초 후 표시)
+        setTimeout(() => {
+            if (AppState.currentUser.safetyScore < 90) {
+                NotificationSystem.show(
+                    'info',
+                    '안전도 향상 기회',
+                    '추가 인증을 완료하시면 더 많은 거래 기회를 얻을 수 있습니다.',
+                    7000
+                );
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

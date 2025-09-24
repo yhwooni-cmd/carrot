@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 관리 - 안전거래</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="14-메인대시보드.html" class="logo">
+                    <i class="fas fa-shield-alt"></i> 안전거래
+                </a>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="11-상품목록.html">상품검색</a></li>
+                        <li><a href="06-안전도조회.html">안전도</a></li>
+                        <li><a href="04-프로필관리.html" class="active">내 정보</a></li>
+                        <li><a href="15-알림센터.html">알림</a></li>
+                    </ul>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name">김안전님</span>
+                    <div class="safety-score good">
+                        <span class="safety-score__value">85</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <h1 class="page-title">프로필 관리</h1>
+            <p class="page-subtitle">신뢰도 향상을 위한 상세 프로필 및 인증 정보 관리</p>
+        </div>
+
+        <!-- 사이드바 메뉴 -->
+        <div class="profile-layout">
+            <aside class="profile-sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#basic-info" class="nav-link active" data-tab="basic-info">
+                            <i class="fas fa-user"></i> 기본 정보
+                        </a></li>
+                        <li><a href="#verification" class="nav-link" data-tab="verification">
+                            <i class="fas fa-shield-check"></i> 인증 관리
+                        </a></li>
+                        <li><a href="#trade-settings" class="nav-link" data-tab="trade-settings">
+                            <i class="fas fa-cog"></i> 거래 설정
+                        </a></li>
+                        <li><a href="#safety-detail" class="nav-link" data-tab="safety-detail">
+                            <i class="fas fa-chart-line"></i> 안전도 상세
+                        </a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="profile-content">
+                <!-- 현재 안전도 대시보드 -->
+                <div class="safety-dashboard card">
+                    <div class="card-header">
+                        <h2 class="card-title">내 안전도 현황</h2>
+                    </div>
+                    <div class="safety-overview">
+                        <div class="safety-score good">
+                            <div class="safety-score__value">85</div>
+                            <div class="safety-score__stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="safety-score__label">우수 등급</div>
+                        </div>
+                        <div class="safety-details">
+                            <div class="progress-info">
+                                <span>프로필 완성도</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                                <span>75%</span>
+                            </div>
+                            <div class="next-level">
+                                <span>최우수 등급까지 <strong>15점</strong> 남았습니다</span>
+                                <a href="#verification" class="btn btn-small btn-primary">인증 추가하기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 컨텐츠 -->
+                <div class="tab-content">
+                    <!-- 기본 정보 탭 -->
+                    <div id="basic-info" class="tab-pane active">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">기본 정보</h3>
+                                <button class="btn btn-secondary btn-small">수정</button>
+                            </div>
+                            <form class="profile-form">
+                                <div class="form-group">
+                                    <label class="form-label">이름</label>
+                                    <input type="text" class="form-input" value="김안전" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">이메일</label>
+                                    <input type="email" class="form-input" value="safe@example.com">
+                                    <span class="badge badge-verified">
+                                        <i class="fas fa-check"></i> 인증완료
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">휴대폰 번호</label>
+                                    <input type="tel" class="form-input" value="010-1234-5678">
+                                    <span class="badge badge-verified">
+                                        <i class="fas fa-check"></i> 인증완료
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">생년월일</label>
+                                    <input type="date" class="form-input" value="1990-05-15">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">거주 지역</label>
+                                    <select class="form-input">
+                                        <option>서울특별시 강남구</option>
+                                        <option>서울특별시 서초구</option>
+                                        <option>서울특별시 송파구</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">자기소개</label>
+                                    <textarea class="form-input" rows="4" placeholder="안전한 거래를 위한 간단한 자기소개를 작성해주세요.">안전하고 신뢰할 수 있는 거래를 지향합니다. 깔끔하고 정확한 상품 설명으로 만족스러운 거래 경험을 제공하겠습니다.</textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 인증 관리 탭 -->
+                    <div id="verification" class="tab-pane">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">추가 인증</h3>
+                                <p class="card-subtitle">더 많은 인증으로 안전도를 향상시키세요</p>
+                            </div>
+
+                            <!-- 인증 배지 컬렉션 -->
+                            <div class="badges-collection">
+                                <h4>보유 인증 배지</h4>
+                                <div class="badges">
+                                    <span class="badge badge-verified">
+                                        <i class="fas fa-mobile-alt"></i> 휴대폰 인증
+                                    </span>
+                                    <span class="badge badge-verified">
+                                        <i class="fas fa-envelope"></i> 이메일 인증
+                                    </span>
+                                    <span class="badge badge-id">
+                                        <i class="fas fa-id-card"></i> 신분증 인증
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 추가 인증 옵션 -->
+                            <div class="verification-options">
+                                <h4>추가 인증 옵션</h4>
+                                <div class="grid grid-2">
+                                    <div class="verification-card">
+                                        <div class="verification-icon">
+                                            <i class="fas fa-building"></i>
+                                        </div>
+                                        <div class="verification-info">
+                                            <h5>직장 인증</h5>
+                                            <p>재직증명서를 통한 직장 인증</p>
+                                            <span class="points">+10점</span>
+                                        </div>
+                                        <button class="btn btn-primary btn-small">인증하기</button>
+                                    </div>
+
+                                    <div class="verification-card">
+                                        <div class="verification-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <div class="verification-info">
+                                            <h5>학교 인증</h5>
+                                            <p>재학/졸업증명서를 통한 학교 인증</p>
+                                            <span class="points">+5점</span>
+                                        </div>
+                                        <button class="btn btn-secondary btn-small">인증하기</button>
+                                    </div>
+
+                                    <div class="verification-card">
+                                        <div class="verification-icon">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div class="verification-info">
+                                            <h5>거주지 인증</h5>
+                                            <p>주민등록등본을 통한 거주지 인증</p>
+                                            <span class="points">+5점</span>
+                                        </div>
+                                        <button class="btn btn-secondary btn-small">인증하기</button>
+                                    </div>
+
+                                    <div class="verification-card">
+                                        <div class="verification-icon">
+                                            <i class="fab fa-facebook"></i>
+                                        </div>
+                                        <div class="verification-info">
+                                            <h5>소셜미디어 인증</h5>
+                                            <p>소셜미디어 계정 연동 인증</p>
+                                            <span class="points">+3점</span>
+                                        </div>
+                                        <button class="btn btn-secondary btn-small">인증하기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 거래 설정 탭 -->
+                    <div id="trade-settings" class="tab-pane">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">거래 선호 설정</h3>
+                            </div>
+                            <form class="settings-form">
+                                <div class="form-group">
+                                    <label class="form-label">선호 거래 방식</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked> 직거래
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox"> 택배거래
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked> 안전거래 (에스크로)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">거래 가능 지역</label>
+                                    <select class="form-input" multiple>
+                                        <option selected>강남구</option>
+                                        <option selected>서초구</option>
+                                        <option>송파구</option>
+                                        <option>영등포구</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">거래 가능 시간</label>
+                                    <div class="time-settings">
+                                        <div class="time-range">
+                                            <label>평일</label>
+                                            <input type="time" value="18:00"> ~
+                                            <input type="time" value="22:00">
+                                        </div>
+                                        <div class="time-range">
+                                            <label>주말</label>
+                                            <input type="time" value="10:00"> ~
+                                            <input type="time" value="22:00">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">알림 설정</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked> 새 메시지 알림
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked> 거래 진행 알림
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox"> 마케팅 정보 수신
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">설정 저장</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 안전도 상세 탭 -->
+                    <div id="safety-detail" class="tab-pane">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">안전도 상세 분석</h3>
+                            </div>
+
+                            <div class="safety-breakdown">
+                                <div class="safety-category">
+                                    <div class="category-header">
+                                        <h4>인증 점수</h4>
+                                        <span class="category-score">40/50</span>
+                                    </div>
+                                    <div class="category-details">
+                                        <div class="detail-item">
+                                            <span>휴대폰 인증</span>
+                                            <span class="points">+15점</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>이메일 인증</span>
+                                            <span class="points">+10점</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>신분증 인증</span>
+                                            <span class="points">+15점</span>
+                                        </div>
+                                        <div class="detail-item missing">
+                                            <span>직장 인증</span>
+                                            <span class="points">+10점</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="safety-category">
+                                    <div class="category-header">
+                                        <h4>거래 이력</h4>
+                                        <span class="category-score">35/30</span>
+                                    </div>
+                                    <div class="category-details">
+                                        <div class="detail-item">
+                                            <span>거래 완료율</span>
+                                            <span class="points">98% (+20점)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>빠른 응답</span>
+                                            <span class="points">평균 2분 (+10점)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>긍정 후기</span>
+                                            <span class="points">95% (+5점)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="safety-category">
+                                    <div class="category-header">
+                                        <h4>신뢰성 점수</h4>
+                                        <span class="category-score">10/20</span>
+                                    </div>
+                                    <div class="category-details">
+                                        <div class="detail-item">
+                                            <span>계정 사용 기간</span>
+                                            <span class="points">2년 (+5점)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>커뮤니티 활동</span>
+                                            <span class="points">보통 (+5점)</span>
+                                        </div>
+                                        <div class="detail-item missing">
+                                            <span>추천인 시스템</span>
+                                            <span class="points">+10점</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="improvement-tips">
+                                <h4>안전도 향상 팁</h4>
+                                <div class="tips-list">
+                                    <div class="tip-item">
+                                        <i class="fas fa-lightbulb"></i>
+                                        <span>직장 인증을 완료하면 최우수 등급에 도달할 수 있습니다.</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>지인 추천을 통해 추가 점수를 얻을 수 있습니다.</span>
+                                    </div>
+                                    <div class="tip-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>빠른 응답을 유지하여 좋은 평가를 받아보세요.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>안전거래</h4>
+                    <p>모든 사람이 안전하게 거래할 수 있는 신뢰의 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="16-도움말센터.html">도움말 센터</a></li>
+                        <li><a href="#안전가이드">안전 거래 가이드</a></li>
+                        <li><a href="#고객센터">고객 센터</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>정책</h4>
+                    <ul>
+                        <li><a href="#이용약관">이용약관</a></li>
+                        <li><a href="#개인정보">개인정보처리방침</a></li>
+                        <li><a href="#분쟁해결">분쟁해결기준</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="common.js"></script>
+    <script>
+        // 탭 기능
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.nav-link');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // 모든 탭 비활성화
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+
+                    // 클릭된 탭 활성화
+                    this.classList.add('active');
+                    const targetTab = this.getAttribute('data-tab');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // 프로필 수정 폼 처리
+            const profileForm = document.querySelector('.profile-form');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success');
+                });
+            }
+
+            // 설정 저장 처리
+            const settingsForm = document.querySelector('.settings-form');
+            if (settingsForm) {
+                settingsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showAlert('설정이 저장되었습니다.', 'success');
+                });
+            }
+
+            // 인증 버튼 처리
+            const verifyButtons = document.querySelectorAll('.verification-card .btn');
+            verifyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const cardTitle = this.closest('.verification-card').querySelector('h5').textContent;
+                    showAlert(`${cardTitle} 인증 절차를 시작합니다.`, 'info');
+                });
+            });
+        });
+
+        // 알림 표시 함수
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <div class="alert__icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                </div>
+                <div class="alert__content">
+                    <div class="alert__message">${message}</div>
+                </div>
+            `;
+
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+
+    <style>
+        /* 프로필 관리 전용 스타일 */
+        .page-header {
+            margin: var(--space-2xl) 0;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: var(--font-h1);
+            margin-bottom: var(--space-sm);
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+        }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .profile-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-nav .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .safety-dashboard {
+            margin-bottom: var(--space-lg);
+        }
+
+        .safety-overview {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: var(--space-lg);
+            align-items: center;
+        }
+
+        .safety-details {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .progress-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--status-success);
+            transition: width 0.3s ease;
+        }
+
+        .next-level {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--safety-good-bg);
+            border-radius: 8px;
+        }
+
+        .tab-content {
+            position: relative;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .badges-collection {
+            margin-bottom: var(--space-lg);
+        }
+
+        .badges-collection h4 {
+            margin-bottom: var(--space-md);
+        }
+
+        .verification-options h4 {
+            margin-bottom: var(--space-md);
+        }
+
+        .verification-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .verification-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .verification-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+            border-radius: 50%;
+            font-size: 20px;
+            color: var(--primary-blue);
+        }
+
+        .verification-info {
+            flex: 1;
+        }
+
+        .verification-info h5 {
+            margin-bottom: var(--space-xs);
+        }
+
+        .verification-info p {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+            margin-bottom: var(--space-xs);
+        }
+
+        .points {
+            color: var(--status-success);
+            font-weight: 500;
+            font-size: var(--font-body-small);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            cursor: pointer;
+        }
+
+        .time-settings {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .time-range {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .time-range label {
+            min-width: 60px;
+        }
+
+        .safety-breakdown {
+            margin-bottom: var(--space-lg);
+        }
+
+        .safety-category {
+            margin-bottom: var(--space-lg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-score {
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .category-details {
+            padding: var(--space-md);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item.missing {
+            opacity: 0.6;
+        }
+
+        .detail-item.missing .points {
+            color: var(--text-secondary);
+        }
+
+        .improvement-tips h4 {
+            margin-bottom: var(--space-md);
+        }
+
+        .tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: var(--background);
+            border-radius: 8px;
+        }
+
+        .tip-item i {
+            color: var(--secondary-orange);
+        }
+
+        @media (max-width: 1023px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+
+            .profile-sidebar {
+                position: static;
+            }
+
+            .sidebar-nav ul {
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .sidebar-nav .nav-link {
+                white-space: nowrap;
+                border-bottom: none;
+                border-right: 1px solid var(--border);
+            }
+
+            .sidebar-nav .nav-link:last-child {
+                border-right: none;
+            }
+
+            .safety-overview {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .verification-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .time-range {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .next-level {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .nav-menu .active {
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: var(--space-2xl) 0;
+            margin-top: var(--space-3xl);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2xl);
+        }
+
+        .footer-section h4 {
+            margin-bottom: var(--space-md);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: var(--space-sm);
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-blue);
+        }
+
+        @media (max-width: 767px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>

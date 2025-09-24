@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인증 관리 - 안전거래</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="14-메인대시보드.html" class="logo">
+                    <i class="fas fa-shield-alt"></i> 안전거래
+                </a>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="11-상품목록.html">상품검색</a></li>
+                        <li><a href="06-안전도조회.html">안전도</a></li>
+                        <li><a href="04-프로필관리.html" class="active">내 정보</a></li>
+                        <li><a href="15-알림센터.html">알림</a></li>
+                    </ul>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name">김안전님</span>
+                    <div class="safety-score good">
+                        <span class="safety-score__value">85</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 브레드크럼 -->
+        <nav class="breadcrumb">
+            <a href="14-메인대시보드.html">홈</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="04-프로필관리.html">프로필 관리</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>인증 관리</span>
+        </nav>
+
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-shield-check"></i>
+                추가 인증 관리
+            </h1>
+            <p class="page-subtitle">다양한 인증을 통해 안전도를 높이고 신뢰할 수 있는 거래자가 되어보세요</p>
+
+            <!-- 현재 안전도 -->
+            <div class="current-safety">
+                <div class="safety-score good">
+                    <div class="safety-score__value">85</div>
+                    <div class="safety-score__stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                    <div class="safety-score__label">우수 등급</div>
+                </div>
+                <div class="safety-goal">
+                    <span>최우수 등급까지 <strong>15점</strong> 남았습니다!</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 인증 현황 대시보드 -->
+        <div class="verification-dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">인증 현황</h2>
+                    <span class="progress-text">6개 중 3개 완료</span>
+                </div>
+
+                <div class="verification-grid">
+                    <!-- 완료된 인증들 -->
+                    <div class="verification-item completed">
+                        <div class="verification-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>휴대폰 인증</h3>
+                            <p>010-1234-5678</p>
+                            <span class="status-badge completed">
+                                <i class="fas fa-check"></i> 인증완료
+                            </span>
+                        </div>
+                        <div class="verification-points">+15점</div>
+                    </div>
+
+                    <div class="verification-item completed">
+                        <div class="verification-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>이메일 인증</h3>
+                            <p>safe@example.com</p>
+                            <span class="status-badge completed">
+                                <i class="fas fa-check"></i> 인증완료
+                            </span>
+                        </div>
+                        <div class="verification-points">+10점</div>
+                    </div>
+
+                    <div class="verification-item completed">
+                        <div class="verification-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>신분증 인증</h3>
+                            <p>김**</p>
+                            <span class="status-badge completed">
+                                <i class="fas fa-check"></i> 인증완료
+                            </span>
+                        </div>
+                        <div class="verification-points">+15점</div>
+                    </div>
+
+                    <!-- 대기 중인 인증들 -->
+                    <div class="verification-item pending">
+                        <div class="verification-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>직장 인증</h3>
+                            <p>재직증명서를 통한 직장 인증</p>
+                            <span class="status-badge pending">
+                                <i class="fas fa-clock"></i> 인증 대기
+                            </span>
+                        </div>
+                        <div class="verification-points">+10점</div>
+                        <button class="btn btn-primary btn-small">계속 진행</button>
+                    </div>
+
+                    <div class="verification-item available">
+                        <div class="verification-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>학교 인증</h3>
+                            <p>재학/졸업증명서를 통한 학교 인증</p>
+                            <span class="status-badge available">
+                                <i class="fas fa-plus"></i> 인증 가능
+                            </span>
+                        </div>
+                        <div class="verification-points">+5점</div>
+                        <button class="btn btn-secondary btn-small">시작하기</button>
+                    </div>
+
+                    <div class="verification-item available">
+                        <div class="verification-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="verification-content">
+                            <h3>거주지 인증</h3>
+                            <p>주민등록등본을 통한 거주지 인증</p>
+                            <span class="status-badge available">
+                                <i class="fas fa-plus"></i> 인증 가능
+                            </span>
+                        </div>
+                        <div class="verification-points">+5점</div>
+                        <button class="btn btn-secondary btn-small">시작하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 추가 인증 옵션 -->
+        <div class="additional-verifications">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">추가 인증 옵션</h2>
+                    <p class="card-subtitle">더 많은 인증으로 신뢰도를 높여보세요</p>
+                </div>
+
+                <div class="verification-options">
+                    <div class="option-category">
+                        <h3>소셜 인증</h3>
+                        <div class="options-grid">
+                            <div class="option-card">
+                                <div class="option-icon facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>페이스북 연동</h4>
+                                    <p>페이스북 계정 연동 인증</p>
+                                    <span class="points">+3점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">연동하기</button>
+                            </div>
+
+                            <div class="option-card">
+                                <div class="option-icon naver">
+                                    <i class="fab fa-naver"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>네이버 연동</h4>
+                                    <p>네이버 계정 연동 인증</p>
+                                    <span class="points">+3점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">연동하기</button>
+                            </div>
+
+                            <div class="option-card">
+                                <div class="option-icon kakao">
+                                    <i class="fab fa-kakao"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>카카오 연동</h4>
+                                    <p>카카오 계정 연동 인증</p>
+                                    <span class="points">+3점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">연동하기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-category">
+                        <h3>금융 인증</h3>
+                        <div class="options-grid">
+                            <div class="option-card">
+                                <div class="option-icon bank">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>계좌 인증</h4>
+                                    <p>본인 명의 계좌 인증</p>
+                                    <span class="points">+7점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">인증하기</button>
+                            </div>
+
+                            <div class="option-card">
+                                <div class="option-icon credit">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>신용카드 인증</h4>
+                                    <p>본인 명의 신용카드 인증</p>
+                                    <span class="points">+5점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">인증하기</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-category">
+                        <h3>생체 인증</h3>
+                        <div class="options-grid">
+                            <div class="option-card">
+                                <div class="option-icon biometric">
+                                    <i class="fas fa-fingerprint"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>생체 인증</h4>
+                                    <p>지문 또는 얼굴 인식 등록</p>
+                                    <span class="points">+8점</span>
+                                </div>
+                                <button class="btn btn-secondary btn-small">등록하기</button>
+                            </div>
+
+                            <div class="option-card">
+                                <div class="option-icon video">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <div class="option-info">
+                                    <h4>화상 인증</h4>
+                                    <p>실시간 화상통화 본인 확인</p>
+                                    <span class="points">+12점</span>
+                                </div>
+                                <button class="btn btn-primary btn-small">예약하기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 인증 혜택 안내 -->
+        <div class="benefits-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">인증 혜택</h2>
+                    <p class="card-subtitle">인증을 완료하면 다양한 혜택을 받을 수 있습니다</p>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+                        <h4>신뢰도 향상</h4>
+                        <p>더 많은 구매자가 내 상품을 신뢰하게 됩니다</p>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4>검색 우선순위</h4>
+                        <p>상품 검색 결과에서 더 높은 순위로 노출됩니다</p>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <h4>수수료 할인</h4>
+                        <p>인증 등급에 따라 거래 수수료 할인 혜택</p>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h4>프리미엄 기능</h4>
+                        <p>고급 인증자만 사용할 수 있는 특별 기능 제공</p>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4>우선 고객지원</h4>
+                        <p>문제 발생 시 우선적으로 고객지원을 받을 수 있습니다</p>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4>보안 강화</h4>
+                        <p>추가 보안 인증으로 계정 안전성이 높아집니다</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 자주 묻는 질문 -->
+        <div class="faq-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">자주 묻는 질문</h2>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h4>인증 정보는 어떻게 보관되나요?</h4>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>모든 인증 정보는 암호화되어 안전하게 보관되며, 인증 목적 외에는 사용되지 않습니다. 개인정보보호법에 따라 엄격하게 관리됩니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h4>인증을 취소할 수 있나요?</h4>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>언제든지 고객센터를 통해 인증 취소를 요청할 수 있습니다. 취소 시 해당 인증으로 받은 안전도 점수는 차감됩니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h4>인증 과정에 문제가 있을 때는?</h4>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>인증 과정에서 문제가 발생하면 고객센터(1588-1234)로 연락주시거나 온라인 문의를 통해 도움을 받으실 수 있습니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h4>인증에 비용이 드나요?</h4>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>기본 인증(휴대폰, 이메일, 신분증)은 무료이며, 일부 고급 인증(화상 인증 등)은 소정의 수수료가 발생할 수 있습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 인증 버튼 클릭 처리
+            const verificationButtons = document.querySelectorAll('.verification-item .btn, .option-card .btn');
+            verificationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.verification-item, .option-card');
+                    const title = card.querySelector('h3, h4').textContent;
+
+                    if (this.textContent.includes('계속 진행')) {
+                        showAlert(`${title} 인증을 계속 진행합니다.`, 'info');
+                        // 실제로는 인증 진행 페이지로 이동
+                    } else if (this.textContent.includes('시작하기') || this.textContent.includes('인증하기')) {
+                        showAlert(`${title} 인증 절차를 시작합니다.`, 'info');
+                        // 실제로는 인증 시작 페이지로 이동
+                    } else if (this.textContent.includes('연동하기')) {
+                        showAlert(`${title}을 진행합니다.`, 'info');
+                        // 실제로는 소셜 로그인 팝업
+                    } else if (this.textContent.includes('예약하기')) {
+                        showAlert('화상 인증 예약 페이지로 이동합니다.', 'info');
+                        // 실제로는 예약 페이지로 이동
+                    }
+                });
+            });
+
+            // FAQ 아코디언 기능
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const icon = question.querySelector('i');
+
+                question.addEventListener('click', function() {
+                    const isOpen = item.classList.contains('open');
+
+                    // 모든 FAQ 닫기
+                    faqItems.forEach(faq => {
+                        faq.classList.remove('open');
+                        faq.querySelector('.faq-answer').style.display = 'none';
+                        faq.querySelector('.faq-question i').style.transform = 'rotate(0deg)';
+                    });
+
+                    // 클릭된 FAQ 토글
+                    if (!isOpen) {
+                        item.classList.add('open');
+                        answer.style.display = 'block';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+
+        // 알림 표시 함수
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <div class="alert__icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                </div>
+                <div class="alert__content">
+                    <div class="alert__message">${message}</div>
+                </div>
+            `;
+
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+
+    <style>
+        /* 인증 관리 전용 스타일 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin: var(--space-lg) 0;
+            font-size: var(--font-body-small);
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-blue);
+        }
+
+        .breadcrumb span {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .page-header {
+            text-align: center;
+            margin: var(--space-2xl) 0;
+        }
+
+        .page-title {
+            font-size: var(--font-h1);
+            margin-bottom: var(--space-sm);
+            color: var(--primary-blue);
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+        }
+
+        .current-safety {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin: var(--space-xl) 0;
+            padding: var(--space-lg);
+            background: var(--safety-good-bg);
+            border-radius: 16px;
+        }
+
+        .safety-goal {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            min-width: 300px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--status-success);
+            transition: width 0.3s ease;
+        }
+
+        .verification-dashboard {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .verification-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .verification-item.completed {
+            border-color: var(--status-success);
+            background: var(--safety-excellent-bg);
+        }
+
+        .verification-item.pending {
+            border-color: var(--status-warning);
+            background: var(--safety-normal-bg);
+        }
+
+        .verification-item.available {
+            border-color: var(--border);
+            background: var(--surface);
+        }
+
+        .verification-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .verification-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 20px;
+        }
+
+        .verification-item.completed .verification-icon {
+            background: var(--status-success);
+            color: white;
+        }
+
+        .verification-item.pending .verification-icon {
+            background: var(--status-warning);
+            color: white;
+        }
+
+        .verification-item.available .verification-icon {
+            background: var(--background);
+            color: var(--text-secondary);
+        }
+
+        .verification-content {
+            flex: 1;
+        }
+
+        .verification-content h3 {
+            margin-bottom: var(--space-xs);
+        }
+
+        .verification-content p {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+            margin-bottom: var(--space-sm);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: var(--font-caption);
+            font-weight: 500;
+        }
+
+        .status-badge.completed {
+            background: var(--status-success);
+            color: white;
+        }
+
+        .status-badge.pending {
+            background: var(--status-warning);
+            color: white;
+        }
+
+        .status-badge.available {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .verification-points {
+            font-weight: bold;
+            color: var(--status-success);
+            margin-right: var(--space-sm);
+        }
+
+        .additional-verifications {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .option-category {
+            margin-bottom: var(--space-xl);
+        }
+
+        .option-category h3 {
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: var(--space-sm);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .option-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 18px;
+            color: white;
+        }
+
+        .option-icon.facebook { background: #1877F2; }
+        .option-icon.naver { background: #03C75A; }
+        .option-icon.kakao { background: #FEE500; color: #3C1E1E; }
+        .option-icon.bank { background: var(--primary-blue); }
+        .option-icon.credit { background: var(--secondary-orange); }
+        .option-icon.biometric { background: #9C27B0; }
+        .option-icon.video { background: #E91E63; }
+
+        .option-info {
+            flex: 1;
+        }
+
+        .option-info h4 {
+            margin-bottom: var(--space-xs);
+        }
+
+        .option-info p {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+            margin-bottom: var(--space-xs);
+        }
+
+        .benefits-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .benefit-item {
+            text-align: center;
+            padding: var(--space-lg);
+        }
+
+        .benefit-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-md);
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            font-size: 24px;
+        }
+
+        .benefit-item h4 {
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .benefit-item p {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        .faq-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .faq-list {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background: var(--background);
+        }
+
+        .faq-question h4 {
+            margin: 0;
+        }
+
+        .faq-question i {
+            transition: transform 0.2s ease;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 var(--space-md) var(--space-md);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .nav-menu .active {
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        @media (max-width: 767px) {
+            .current-safety {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .safety-goal {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .verification-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .verification-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .option-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>

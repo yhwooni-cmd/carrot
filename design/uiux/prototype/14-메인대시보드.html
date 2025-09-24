@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인 대시보드 - 안전한 중고거래 플랫폼</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+            color: white;
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .welcome-message {
+            font-size: var(--font-size-h3);
+            margin-bottom: var(--space-sm);
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-h2);
+            font-weight: bold;
+            margin-bottom: var(--space-xs);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-body-sm);
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+        }
+
+        .action-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon {
+            font-size: 32px;
+            margin-bottom: var(--space-md);
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .action-description {
+            font-size: var(--font-size-body-sm);
+            color: var(--text-secondary);
+        }
+
+        .recent-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s ease;
+        }
+
+        .recent-item:hover {
+            background: #F8F9FA;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .recent-content {
+            flex: 1;
+        }
+
+        .recent-title {
+            font-weight: 500;
+            margin-bottom: var(--space-xs);
+        }
+
+        .recent-meta {
+            font-size: var(--font-size-caption);
+            color: var(--text-secondary);
+        }
+
+        .recent-time {
+            font-size: var(--font-size-caption);
+            color: var(--text-disabled);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">🥕 당근안전</a>
+                <nav class="nav">
+                    <a href="#" class="nav-link active" data-page="dashboard">대시보드</a>
+                    <a href="#" class="nav-link" data-page="products">상품</a>
+                    <a href="#" class="nav-link" data-page="chat">채팅</a>
+                    <a href="#" class="nav-link" data-page="safety">안전도</a>
+                </nav>
+                <div class="user-menu">
+                    <span class="nav-link">🔔 알림</span>
+                    <span class="nav-link" id="user-name">김안전님</span>
+                    <a href="01-로그인.html" class="nav-link" id="logout-btn">로그아웃</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- 대시보드 헤더 -->
+        <div class="dashboard-header">
+            <h1 class="welcome-message">안녕하세요, <span id="welcome-user">김안전</span>님!</h1>
+            <p>안전한 거래를 위한 모든 정보를 한눈에 확인하세요.</p>
+
+            <div class="user-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="safety-score">85</div>
+                    <div class="stat-label">안전도 점수</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="transaction-count">12</div>
+                    <div class="stat-label">완료된 거래</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="trust-level">우수</div>
+                    <div class="stat-label">신뢰 등급</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="member-days">45</div>
+                    <div class="stat-label">가입일</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 그리드 -->
+        <div class="dashboard-grid">
+            <!-- 메인 컨텐츠 -->
+            <div class="main-content">
+                <!-- 빠른 작업 -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3 class="card__title">빠른 작업</h3>
+                        <p class="card__subtitle">자주 사용하는 기능들을 빠르게 이용하세요</p>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="Navigation.navigateTo('register-product')">
+                            <div class="action-icon">📱</div>
+                            <div class="action-title">상품 등록</div>
+                            <div class="action-description">새로운 상품을 등록하세요</div>
+                        </div>
+                        <div class="action-card" onclick="Navigation.navigateTo('search-products')">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-title">상품 찾기</div>
+                            <div class="action-description">원하는 상품을 검색하세요</div>
+                        </div>
+                        <div class="action-card" onclick="Navigation.navigateTo('safety-center')">
+                            <div class="action-icon">🛡️</div>
+                            <div class="action-title">안전 센터</div>
+                            <div class="action-description">안전도를 관리하세요</div>
+                        </div>
+                        <div class="action-card" onclick="Navigation.navigateTo('chat-list')">
+                            <div class="action-icon">💬</div>
+                            <div class="action-title">채팅 목록</div>
+                            <div class="action-description">거래 대화를 확인하세요</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최근 활동 -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3 class="card__title">최근 활동</h3>
+                        <p class="card__subtitle">최근 거래 및 활동 내역입니다</p>
+                    </div>
+
+                    <ul class="recent-list">
+                        <li class="recent-item">
+                            <div class="recent-icon">💬</div>
+                            <div class="recent-content">
+                                <div class="recent-title">아이폰 14 Pro 거래 문의</div>
+                                <div class="recent-meta">박신뢰님과의 채팅</div>
+                            </div>
+                            <div class="recent-time">10분 전</div>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-icon">✅</div>
+                            <div class="recent-content">
+                                <div class="recent-title">무선 이어폰 거래 완료</div>
+                                <div class="recent-meta">95,000원 • 이믿음님</div>
+                            </div>
+                            <div class="recent-time">1시간 전</div>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-icon">🛡️</div>
+                            <div class="recent-content">
+                                <div class="recent-title">안전도 점수 상승</div>
+                                <div class="recent-meta">82점 → 85점 (+3점)</div>
+                            </div>
+                            <div class="recent-time">3시간 전</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="sidebar">
+                <!-- 내 안전도 -->
+                <div class="card card--safety" style="--safety-color: var(--safety-good-primary);">
+                    <div class="card__header">
+                        <h3 class="card__title">내 안전도</h3>
+                    </div>
+
+                    <div id="my-safety-score"></div>
+
+                    <div class="safety-badges">
+                        <span class="safety-badge safety-badge--verified">📱 휴대폰 인증</span>
+                        <span class="safety-badge safety-badge--verified">📧 이메일 인증</span>
+                        <span class="safety-badge safety-badge--verified">🆔 신분증 인증</span>
+                    </div>
+
+                    <a href="#" class="btn btn--secondary" style="width: 100%; margin-top: var(--space-md);">
+                        안전도 개선하기
+                    </a>
+                </div>
+
+                <!-- 중요 알림 -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3 class="card__title">중요 알림</h3>
+                    </div>
+
+                    <div class="alert alert--warning">
+                        <div class="alert__icon">⚠️</div>
+                        <div class="alert__content">
+                            <div class="alert__title">의심스러운 거래 감지</div>
+                            <div class="alert__message">평소보다 저렴한 가격의 상품에 관심을 표시하셨습니다.</div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--info">
+                        <div class="alert__icon">💡</div>
+                        <div class="alert__content">
+                            <div class="alert__title">안전 거래 팁</div>
+                            <div class="alert__message">직거래 시 공공장소에서 만나세요!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 추천 상품 -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3 class="card__title">추천 상품</h3>
+                        <p class="card__subtitle">관심사 기반 추천</p>
+                    </div>
+
+                    <ul class="recent-list">
+                        <li class="recent-item">
+                            <div class="recent-icon">📱</div>
+                            <div class="recent-content">
+                                <div class="recent-title">갤럭시 S24</div>
+                                <div class="recent-meta">1,200,000원 • 안전도 92점</div>
+                            </div>
+                        </li>
+                        <li class="recent-item">
+                            <div class="recent-icon">💻</div>
+                            <div class="recent-content">
+                                <div class="recent-title">맥북 에어 M2</div>
+                                <div class="recent-meta">1,800,000원 • 안전도 88점</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 로그인 상태 확인
+            const isLoggedIn = Storage.get('isLoggedIn', false);
+            const userData = Storage.get('userData') || Storage.get('currentUser');
+
+            if (!isLoggedIn) {
+                window.location.href = '01-로그인.html';
+                return;
+            }
+
+            // 사용자 정보 표시
+            if (userData) {
+                document.getElementById('welcome-user').textContent = userData.name || '사용자';
+                document.getElementById('user-name').textContent = (userData.name || '사용자') + '님';
+
+                if (userData.safetyScore) {
+                    document.getElementById('safety-score').textContent = userData.safetyScore;
+                    document.getElementById('trust-level').textContent = Utils.getSafetyText(Utils.getSafetyLevel(userData.safetyScore));
+
+                    // 안전도 컴포넌트 생성
+                    const safetyScoreHtml = Utils.createSafetyScore(
+                        userData.safetyScore,
+                        true,
+                        userData.badges || ['phone-verified', 'email-verified', 'id-verified']
+                    );
+                    document.getElementById('my-safety-score').innerHTML = safetyScoreHtml;
+                }
+            }
+
+            // 로그아웃 이벤트
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                Storage.remove('isLoggedIn');
+                Storage.remove('currentUser');
+                Storage.remove('userData');
+                window.location.href = '01-로그인.html';
+            });
+
+            // 네비게이션 업데이트
+            Navigation.currentPage = 'dashboard';
+            Navigation.updateActiveNav();
+
+            console.log('Dashboard initialized');
+        });
+    </script>
+</body>
+</html>

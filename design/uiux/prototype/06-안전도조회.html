@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안전도 조회 - 안전거래</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="14-메인대시보드.html" class="logo">
+                    <i class="fas fa-shield-alt"></i> 안전거래
+                </a>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="11-상품목록.html">상품검색</a></li>
+                        <li><a href="06-안전도조회.html" class="active">안전도</a></li>
+                        <li><a href="04-프로필관리.html">내 정보</a></li>
+                        <li><a href="15-알림센터.html">알림</a></li>
+                    </ul>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name">김안전님</span>
+                    <div class="safety-score good">
+                        <span class="safety-score__value">85</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 검색 섹션 -->
+        <div class="search-section">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">
+                        <i class="fas fa-search"></i>
+                        사용자 안전도 조회
+                    </h1>
+                    <p class="card-subtitle">거래 전에 상대방의 안전도를 확인하여 안전한 거래를 진행하세요</p>
+                </div>
+
+                <div class="search-form">
+                    <div class="search-input-group">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-user search-icon"></i>
+                            <input type="text"
+                                   id="userSearch"
+                                   class="search-input"
+                                   placeholder="사용자 이름, 이메일 또는 전화번호로 검색"
+                                   value="">
+                        </div>
+                        <button type="button" class="btn btn-primary search-btn" onclick="searchUser()">
+                            <i class="fas fa-search"></i>
+                            검색
+                        </button>
+                    </div>
+
+                    <div class="search-tips">
+                        <h4>검색 팁</h4>
+                        <ul>
+                            <li>사용자 이름의 일부만 입력해도 검색 가능합니다</li>
+                            <li>이메일 주소나 휴대폰 번호로도 검색할 수 있습니다</li>
+                            <li>개인정보 보호를 위해 일부 정보는 마스킹되어 표시됩니다</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색 결과 섹션 -->
+        <div id="searchResults" class="search-results" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">검색 결과</h2>
+                    <span class="result-count">3명의 사용자를 찾았습니다</span>
+                </div>
+
+                <div class="user-list">
+                    <!-- 사용자 1 - 최우수 등급 -->
+                    <div class="user-item" onclick="showUserDetail('user001')">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">박신뢰</h3>
+                            <p class="user-email">trust***@example.com</p>
+                            <div class="user-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-handshake"></i>
+                                    거래 47회
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    평균 2분 응답
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-safety">
+                            <div class="safety-score excellent">
+                                <div class="safety-score__value">92</div>
+                                <div class="safety-score__stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="safety-score__label">최우수</div>
+                            </div>
+                            <div class="badges">
+                                <span class="badge badge-verified">
+                                    <i class="fas fa-check"></i> 인증완료
+                                </span>
+                                <span class="badge badge-business">
+                                    <i class="fas fa-building"></i> 직장인증
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-primary">상세보기</button>
+                        </div>
+                    </div>
+
+                    <!-- 사용자 2 - 우수 등급 -->
+                    <div class="user-item" onclick="showUserDetail('user002')">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">이안전</h3>
+                            <p class="user-email">safe***@example.com</p>
+                            <div class="user-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-handshake"></i>
+                                    거래 23회
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    평균 5분 응답
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-safety">
+                            <div class="safety-score good">
+                                <div class="safety-score__value">78</div>
+                                <div class="safety-score__stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="safety-score__label">우수</div>
+                            </div>
+                            <div class="badges">
+                                <span class="badge badge-verified">
+                                    <i class="fas fa-check"></i> 기본인증
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-primary">상세보기</button>
+                        </div>
+                    </div>
+
+                    <!-- 사용자 3 - 주의 등급 -->
+                    <div class="user-item warning" onclick="showUserDetail('user003')">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">최주의</h3>
+                            <p class="user-email">warn***@example.com</p>
+                            <div class="user-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-handshake"></i>
+                                    거래 8회
+                                </span>
+                                <span class="stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    평균 2시간 응답
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-safety">
+                            <div class="safety-score warning">
+                                <div class="safety-score__value">42</div>
+                                <div class="safety-score__stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <div class="safety-score__label">주의</div>
+                            </div>
+                            <div class="warning-info">
+                                <span class="warning-badge">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    신고 이력 있음
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-small btn-secondary">상세보기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 사용자 상세 모달 -->
+        <div id="userDetailModal" class="modal" style="display: none;">
+            <div class="modal-overlay" onclick="closeUserDetail()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">사용자 안전도 상세 정보</h2>
+                    <button class="modal-close" onclick="closeUserDetail()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="userDetailContent">
+                        <!-- 동적으로 생성될 사용자 상세 정보 -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeUserDetail()">닫기</button>
+                    <button class="btn btn-primary" onclick="contactUser()">거래 문의</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 취약계층 보호 정보 -->
+        <div class="protection-info">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-shield-heart"></i>
+                        취약계층 보호 시스템
+                    </h2>
+                </div>
+
+                <div class="protection-content">
+                    <div class="protection-item">
+                        <div class="protection-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="protection-text">
+                            <h4>위험 사용자 경고</h4>
+                            <p>신고 이력이나 의심스러운 활동이 감지된 사용자에게 거래 시 주의 알림을 제공합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="protection-item">
+                        <div class="protection-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="protection-text">
+                            <h4>안전 거래 가이드</h4>
+                            <p>여성, 노약자 등 취약계층을 위한 맞춤형 안전 거래 가이드라인을 제공합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="protection-item">
+                        <div class="protection-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="protection-text">
+                            <h4>24시간 지원</h4>
+                            <p>위험 상황 발생 시 즉시 신고할 수 있는 24시간 고객지원 서비스를 운영합니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="emergency-contact">
+                    <div class="emergency-card">
+                        <h4>긴급 신고</h4>
+                        <p>위험 상황 시 즉시 신고</p>
+                        <button class="btn btn-danger">
+                            <i class="fas fa-phone"></i>
+                            긴급 신고하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 안전도 등급 안내 -->
+        <div class="safety-guide">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">안전도 등급 안내</h2>
+                </div>
+
+                <div class="grade-list">
+                    <div class="grade-item excellent">
+                        <div class="grade-badge">
+                            <span class="grade-score">90-100</span>
+                            <span class="grade-label">최우수</span>
+                        </div>
+                        <div class="grade-description">
+                            <h4>최우수 등급</h4>
+                            <p>완벽한 인증과 우수한 거래 이력을 보유한 최고 신뢰도 사용자입니다.</p>
+                            <ul>
+                                <li>모든 인증 완료 (신분증, 직장, 거주지 등)</li>
+                                <li>거래 완료율 95% 이상</li>
+                                <li>신고 이력 없음</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grade-item good">
+                        <div class="grade-badge">
+                            <span class="grade-score">70-89</span>
+                            <span class="grade-label">우수</span>
+                        </div>
+                        <div class="grade-description">
+                            <h4>우수 등급</h4>
+                            <p>기본 인증을 완료하고 양호한 거래 이력을 보유한 신뢰할 수 있는 사용자입니다.</p>
+                            <ul>
+                                <li>기본 인증 완료 (휴대폰, 이메일, 신분증)</li>
+                                <li>거래 완료율 85% 이상</li>
+                                <li>긍정적인 거래 후기</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grade-item normal">
+                        <div class="grade-badge">
+                            <span class="grade-score">50-69</span>
+                            <span class="grade-label">보통</span>
+                        </div>
+                        <div class="grade-description">
+                            <h4>보통 등급</h4>
+                            <p>기본적인 인증을 완료하였으나 거래 이력이 부족한 일반적인 사용자입니다.</p>
+                            <ul>
+                                <li>기본 인증 일부 완료</li>
+                                <li>제한적인 거래 이력</li>
+                                <li>특별한 문제 없음</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grade-item warning">
+                        <div class="grade-badge">
+                            <span class="grade-score">30-49</span>
+                            <span class="grade-label">주의</span>
+                        </div>
+                        <div class="grade-description">
+                            <h4>주의 등급</h4>
+                            <p>거래 시 주의가 필요한 사용자입니다. 신중한 거래를 권장합니다.</p>
+                            <ul>
+                                <li>인증 미완료 또는 신고 이력 존재</li>
+                                <li>거래 완료율 낮음</li>
+                                <li>부정적 후기 또는 분쟁 이력</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        // 사용자 검색 함수
+        function searchUser() {
+            const searchInput = document.getElementById('userSearch');
+            const searchTerm = searchInput.value.trim();
+
+            if (!searchTerm) {
+                showAlert('검색어를 입력해주세요.', 'warning');
+                return;
+            }
+
+            // 검색 중 표시
+            const searchBtn = document.querySelector('.search-btn');
+            const originalText = searchBtn.innerHTML;
+            searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 검색중...';
+            searchBtn.disabled = true;
+
+            // 2초 후 결과 표시 (실제로는 API 호출)
+            setTimeout(() => {
+                const searchResults = document.getElementById('searchResults');
+                searchResults.style.display = 'block';
+                searchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // 버튼 원래대로 복구
+                searchBtn.innerHTML = originalText;
+                searchBtn.disabled = false;
+
+                showAlert('검색이 완료되었습니다.', 'success');
+            }, 2000);
+        }
+
+        // 엔터키로 검색
+        document.getElementById('userSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchUser();
+            }
+        });
+
+        // 사용자 상세 정보 표시
+        function showUserDetail(userId) {
+            const userDetails = {
+                'user001': {
+                    name: '박신뢰',
+                    email: 'trust***@example.com',
+                    safetyScore: 92,
+                    level: 'excellent',
+                    levelText: '최우수',
+                    transactions: 47,
+                    responseTime: '평균 2분',
+                    completionRate: '98%',
+                    positiveReviews: '96%',
+                    reportCount: 0,
+                    badges: ['휴대폰 인증', '이메일 인증', '신분증 인증', '직장 인증', '거주지 인증'],
+                    recentActivity: [
+                        '아이폰 14 Pro 판매 완료 (2024.09.20)',
+                        'MacBook Air 구매 완료 (2024.09.15)',
+                        '갤럭시 워치 판매 완료 (2024.09.10)'
+                    ],
+                    warning: null
+                },
+                'user002': {
+                    name: '이안전',
+                    email: 'safe***@example.com',
+                    safetyScore: 78,
+                    level: 'good',
+                    levelText: '우수',
+                    transactions: 23,
+                    responseTime: '평균 5분',
+                    completionRate: '87%',
+                    positiveReviews: '89%',
+                    reportCount: 0,
+                    badges: ['휴대폰 인증', '이메일 인증', '신분증 인증'],
+                    recentActivity: [
+                        '무선 이어폰 판매 완료 (2024.09.18)',
+                        '키보드 구매 완료 (2024.09.12)',
+                        '모니터 판매 완료 (2024.09.08)'
+                    ],
+                    warning: null
+                },
+                'user003': {
+                    name: '최주의',
+                    email: 'warn***@example.com',
+                    safetyScore: 42,
+                    level: 'warning',
+                    levelText: '주의',
+                    transactions: 8,
+                    responseTime: '평균 2시간',
+                    completionRate: '62%',
+                    positiveReviews: '70%',
+                    reportCount: 2,
+                    badges: ['휴대폰 인증'],
+                    recentActivity: [
+                        '스마트폰 판매 진행 중 (2024.09.19)',
+                        '헤드폰 구매 취소 (2024.09.10)',
+                        '충전기 판매 완료 (2024.09.05)'
+                    ],
+                    warning: '신고 이력이 있는 사용자입니다. 거래 시 각별한 주의가 필요합니다.'
+                }
+            };
+
+            const user = userDetails[userId];
+            if (!user) return;
+
+            const detailContent = document.getElementById('userDetailContent');
+            detailContent.innerHTML = `
+                <div class="user-detail-header">
+                    <div class="user-avatar-large">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-basic-info">
+                        <h3>${user.name}</h3>
+                        <p>${user.email}</p>
+                        <div class="safety-score ${user.level}">
+                            <div class="safety-score__value">${user.safetyScore}</div>
+                            <div class="safety-score__label">${user.levelText} 등급</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${user.warning ? `
+                <div class="alert alert-warning">
+                    <div class="alert__icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="alert__content">
+                        <div class="alert__title">주의 필요</div>
+                        <div class="alert__message">${user.warning}</div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="detail-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">${user.transactions}회</div>
+                            <div class="stat-label">총 거래</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">${user.responseTime}</div>
+                            <div class="stat-label">응답 시간</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">${user.completionRate}</div>
+                            <div class="stat-label">거래 완료율</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-thumbs-up"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">${user.positiveReviews}</div>
+                            <div class="stat-label">긍정 후기</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>인증 배지</h4>
+                    <div class="badges">
+                        ${user.badges.map(badge => `
+                            <span class="badge badge-verified">
+                                <i class="fas fa-check"></i> ${badge}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>최근 거래 활동</h4>
+                    <ul class="activity-list">
+                        ${user.recentActivity.map(activity => `<li>${activity}</li>`).join('')}
+                    </ul>
+                </div>
+
+                ${user.reportCount > 0 ? `
+                <div class="detail-section">
+                    <h4>신고 이력</h4>
+                    <div class="report-info">
+                        <span class="report-count">${user.reportCount}건의 신고가 접수되었습니다.</span>
+                        <button class="btn btn-small btn-secondary" onclick="showReportDetails()">상세보기</button>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('userDetailModal').style.display = 'flex';
+        }
+
+        // 사용자 상세 모달 닫기
+        function closeUserDetail() {
+            document.getElementById('userDetailModal').style.display = 'none';
+        }
+
+        // 거래 문의
+        function contactUser() {
+            showAlert('거래 문의 기능은 준비 중입니다.', 'info');
+        }
+
+        // 신고 상세 보기
+        function showReportDetails() {
+            showAlert('신고 상세 내역을 확인하는 기능은 준비 중입니다.', 'info');
+        }
+
+        // 긴급 신고
+        document.querySelector('.emergency-card .btn').addEventListener('click', function() {
+            if (confirm('긴급 상황이 맞습니까? 고객센터로 연결됩니다.')) {
+                showAlert('고객센터로 연결 중입니다...', 'info');
+                // 실제로는 고객센터 연결 또는 신고 페이지로 이동
+            }
+        });
+
+        // 알림 표시 함수
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <div class="alert__icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                </div>
+                <div class="alert__content">
+                    <div class="alert__message">${message}</div>
+                </div>
+            `;
+
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+    </script>
+
+    <style>
+        /* 안전도 조회 전용 스타일 */
+        .search-section {
+            margin: var(--space-2xl) 0;
+        }
+
+        .search-form {
+            margin-top: var(--space-lg);
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: var(--font-body-medium);
+            min-height: 48px;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+        }
+
+        .search-btn {
+            min-width: 120px;
+        }
+
+        .search-tips {
+            background: var(--background);
+            padding: var(--space-md);
+            border-radius: 8px;
+        }
+
+        .search-tips h4 {
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .search-tips ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .search-tips li {
+            margin-bottom: var(--space-xs);
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        .search-tips li:before {
+            content: '•';
+            color: var(--primary-blue);
+            margin-right: var(--space-sm);
+        }
+
+        .search-results {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .result-count {
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        .user-list {
+            margin-top: var(--space-lg);
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            padding: var(--space-lg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: var(--space-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .user-item:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-item.warning {
+            border-color: var(--status-warning);
+            background: var(--safety-warning-bg);
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+            border-radius: 50%;
+            font-size: 24px;
+            color: var(--text-secondary);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-h5);
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .user-stats {
+            display: flex;
+            gap: var(--space-lg);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        .user-safety {
+            text-align: center;
+        }
+
+        .warning-info {
+            margin-top: var(--space-sm);
+        }
+
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 4px 8px;
+            background: var(--status-warning);
+            color: white;
+            border-radius: 12px;
+            font-size: var(--font-caption);
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--surface);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: var(--space-sm);
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        .user-detail-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .user-avatar-large {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+            border-radius: 50%;
+            font-size: 32px;
+            color: var(--text-secondary);
+        }
+
+        .user-basic-info h3 {
+            margin-bottom: var(--space-xs);
+        }
+
+        .user-basic-info p {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .detail-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            background: var(--background);
+            border-radius: 8px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: var(--font-caption);
+            color: var(--text-secondary);
+        }
+
+        .detail-section {
+            margin-bottom: var(--space-lg);
+        }
+
+        .detail-section h4 {
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .activity-list {
+            list-style: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .activity-list li {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .activity-list li:last-child {
+            border-bottom: none;
+        }
+
+        .report-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: var(--safety-warning-bg);
+            border-radius: 8px;
+        }
+
+        .report-count {
+            color: var(--status-warning);
+            font-weight: 500;
+        }
+
+        .protection-info {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .protection-content {
+            margin-bottom: var(--space-lg);
+        }
+
+        .protection-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .protection-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+        }
+
+        .protection-text h4 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .protection-text p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .emergency-contact {
+            text-align: center;
+        }
+
+        .emergency-card {
+            display: inline-block;
+            padding: var(--space-lg);
+            background: var(--safety-warning-bg);
+            border: 2px solid var(--status-error);
+            border-radius: 12px;
+        }
+
+        .emergency-card h4 {
+            margin-bottom: var(--space-sm);
+            color: var(--status-error);
+        }
+
+        .emergency-card p {
+            margin-bottom: var(--space-md);
+            color: var(--text-secondary);
+        }
+
+        .safety-guide {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .grade-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .grade-item {
+            display: flex;
+            gap: var(--space-lg);
+            padding: var(--space-lg);
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+
+        .grade-item.excellent {
+            background: var(--safety-excellent-bg);
+            border-left-color: var(--safety-excellent-primary);
+        }
+
+        .grade-item.good {
+            background: var(--safety-good-bg);
+            border-left-color: var(--safety-good-primary);
+        }
+
+        .grade-item.normal {
+            background: var(--safety-normal-bg);
+            border-left-color: var(--safety-normal-primary);
+        }
+
+        .grade-item.warning {
+            background: var(--safety-warning-bg);
+            border-left-color: var(--safety-warning-primary);
+        }
+
+        .grade-badge {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .grade-score {
+            display: block;
+            font-size: var(--font-h4);
+            font-weight: bold;
+            margin-bottom: var(--space-xs);
+        }
+
+        .grade-item.excellent .grade-score {
+            color: var(--safety-excellent-primary);
+        }
+
+        .grade-item.good .grade-score {
+            color: var(--safety-good-primary);
+        }
+
+        .grade-item.normal .grade-score {
+            color: var(--safety-normal-primary);
+        }
+
+        .grade-item.warning .grade-score {
+            color: var(--safety-warning-primary);
+        }
+
+        .grade-label {
+            font-size: var(--font-body-small);
+            font-weight: 500;
+        }
+
+        .grade-description h4 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .grade-description p {
+            margin-bottom: var(--space-md);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .grade-description ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .grade-description li {
+            margin-bottom: var(--space-xs);
+            color: var(--text-secondary);
+            font-size: var(--font-body-small);
+        }
+
+        .grade-description li:before {
+            content: '✓';
+            margin-right: var(--space-sm);
+            font-weight: bold;
+        }
+
+        .grade-item.excellent li:before {
+            color: var(--safety-excellent-primary);
+        }
+
+        .grade-item.good li:before {
+            color: var(--safety-good-primary);
+        }
+
+        .grade-item.normal li:before {
+            color: var(--safety-normal-primary);
+        }
+
+        .grade-item.warning li:before {
+            color: var(--safety-warning-primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .nav-menu .active {
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        @media (max-width: 1023px) {
+            .user-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-stats {
+                justify-content: center;
+            }
+
+            .grade-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .detail-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .search-input-group {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: var(--space-md);
+            }
+
+            .detail-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .protection-item {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</body>
+</html>
