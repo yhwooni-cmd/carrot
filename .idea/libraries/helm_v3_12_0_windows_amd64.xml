@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="helm-v3.12.0-windows-amd64">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/helm-v3.12.0-windows-amd64.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

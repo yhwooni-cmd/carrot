@@ -1,0 +1,95 @@
+graph TD
+    %% 클라이언트 레이어
+    Client[클라이언트<br/>웹/모바일 앱]
+
+    %% API Gateway
+    APIGateway[API Gateway<br/>요청 라우팅, 인증, 제한]
+
+    %% 마이크로서비스들
+    UserService[User Service<br/>사용자 인증 및 프로필 관리]
+    SafetyService[Safety Service<br/>안전도 계산 및 표시 생성]
+    ReportService[Report Service<br/>신고 접수 및 처리]
+    MonitorService[Monitor Service<br/>위험 감지 및 실시간 대응]
+    TransactionService[Transaction Service<br/>거래 이력 및 상품 관리]
+
+    %% 데이터베이스 레이어
+    UserDB[(User DB<br/>사용자, 인증, 프로필)]
+    SafetyDB[(Safety DB<br/>안전도 점수, 규칙)]
+    ReportDB[(Report DB<br/>신고, 처리 이력)]
+    MonitorDB[(Monitor DB<br/>위험 패턴, 로그)]
+    TransactionDB[(Transaction DB<br/>거래, 상품)]
+
+    %% 캐시 레이어
+    Cache[(Redis Cache<br/>세션, 안전도, 실시간 데이터)]
+
+    %% 메시지 큐
+    MessageQueue[Message Queue<br/>비동기 이벤트 처리]
+
+    %% 외부 서비스
+    AuthProvider[외부 인증<br/>SMS, 이메일, OAuth]
+    FileStorage[파일 저장소<br/>이미지, 첨부파일]
+
+    %% 클라이언트 연결
+    Client --> APIGateway : HTTPS 요청
+
+    %% API Gateway 라우팅
+    APIGateway --> UserService : [User] 회원가입, 로그인
+    APIGateway --> SafetyService : [Safety] 안전도 조회
+    APIGateway --> ReportService : [Report] 신고 접수
+    APIGateway --> MonitorService : [Monitor] 위험 알림
+    APIGateway --> TransactionService : [Transaction] 상품 등록, 거래
+
+    %% 서비스 간 동기적 의존성 (필수)
+    SafetyService --> UserService : 사용자 정보 조회
+    SafetyService --> TransactionService : 거래 이력 조회
+    SafetyService --> ReportService : 신고 정보 조회
+    ReportService --> UserService : 신고자/피신고자 정보
+    MonitorService --> UserService : 사용자 활동 패턴
+    MonitorService --> TransactionService : 거래 패턴 분석
+    TransactionService --> UserService : 판매자 정보 조회
+
+    %% 서비스 간 비동기적 의존성 (이벤트)
+    UserService ->> SafetyService : 회원가입 이벤트
+    TransactionService ->> SafetyService : 거래 완료 이벤트
+    ReportService ->> SafetyService : 신고 처리 이벤트
+    MonitorService ->> SafetyService : 위험 감지 이벤트
+
+    %% 데이터베이스 연결
+    UserService --> UserDB : 사용자 데이터 관리
+    SafetyService --> SafetyDB : 안전도 데이터 관리
+    ReportService --> ReportDB : 신고 데이터 관리
+    MonitorService --> MonitorDB : 모니터링 데이터 관리
+    TransactionService --> TransactionDB : 거래 데이터 관리
+
+    %% 캐시 사용
+    UserService --> Cache : 세션, 사용자 정보
+    SafetyService --> Cache : 안전도 점수, 표시 정보
+    MonitorService --> Cache : 실시간 위험 점수
+    TransactionService --> Cache : 인기 상품, 검색 결과
+
+    %% 메시지 큐 사용
+    UserService --> MessageQueue : 사용자 이벤트 발행
+    SafetyService --> MessageQueue : 안전도 갱신 이벤트
+    ReportService --> MessageQueue : 신고 처리 이벤트
+    MonitorService --> MessageQueue : 위험 감지 이벤트
+    TransactionService --> MessageQueue : 거래 이벤트 발행
+
+    %% 외부 서비스 연결
+    UserService --> AuthProvider : SMS/이메일 인증
+    ReportService --> FileStorage : 증거 자료 저장
+    TransactionService --> FileStorage : 상품 이미지 저장
+
+    %% 스타일 정의
+    classDef clientStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000000
+    classDef gatewayStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000000
+    classDef serviceStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000000
+    classDef dataStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000
+    classDef cacheStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000000
+    classDef externalStyle fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#000000
+
+    class Client clientStyle
+    class APIGateway gatewayStyle
+    class UserService,SafetyService,ReportService,MonitorService,TransactionService serviceStyle
+    class UserDB,SafetyDB,ReportDB,MonitorDB,TransactionDB dataStyle
+    class Cache,MessageQueue cacheStyle
+    class AuthProvider,FileStorage externalStyle
