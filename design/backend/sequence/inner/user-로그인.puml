@@ -1,0 +1,94 @@
+@startuml
+!theme mono
+
+title User 서비스 - 다단계 인증 로그인 처리
+
+' 참여자 정의
+actor "사용자" as user
+participant "LoginController" as controller
+participant "AuthService" as authSvc
+participant "UserService" as userSvc
+participant "SecurityService" as secSvc
+participant "UserRepository" as repo
+participant "Redis Cache<<E>>" as cache
+participant "SMS API<<E>>" as sms
+participant "Email API<<E>>" as email
+participant "Safety Service<<E>>" as safetyService
+
+== 1단계: 기본 로그인 ==
+
+user -> controller: POST /api/auth/login
+note right: 로그인 정보\n- 이메일/휴대폰\n- 비밀번호\n- 디바이스 정보, IP
+
+controller -> authSvc: authenticate(credentials)
+
+' 계정 잠금 상태 확인
+authSvc -> cache: getFailedAttempts(identifier)
+note over authSvc: 로그인 시도 횟수 확인\n5회 실패 시 30분 잠금
+
+authSvc -> repo: findByEmailOrPhone(identifier)
+authSvc -> authSvc: validatePassword(password, hashedPassword)
+
+== 2단계: 로그인 보안 검사 ==
+
+authSvc -> secSvc: checkSuspiciousActivity(userInfo, deviceInfo)
+
+note over secSvc: 의심 활동 감지\n- 새로운 기기/IP\n- 의심스러운 지역\n- 비정상적인 시간대
+
+alt 의심 활동 감지됨
+    secSvc -> authSvc: requireAdditionalAuth(reason)
+
+    == 2-1단계: SMS 추가 인증 ==
+    authSvc -> sms: sendSMS(phone, code)
+    authSvc -> cache: setLoginVerificationCode(userId, code, ttl=5min)
+
+    controller -> user: 200 OK - Additional Auth Required
+    note right: 추가 인증 필요 응답\n- 인증 방식: SMS\n- 남은 시간: 5분
+
+    user -> controller: POST /api/auth/verify-login
+    controller -> authSvc: verifyLoginCode(userId, code)
+    authSvc -> cache: getLoginVerificationCode(userId)
+
+else 정상 로그인
+    note over secSvc: 정상적인 로그인으로 판단
+end
+
+== 3단계: 로그인 성공 처리 ==
+
+authSvc -> authSvc: generateJWT(userId, permissions)
+authSvc -> cache: deleteFailedAttempts(identifier)
+
+' 로그인 이력 저장
+authSvc -> cache: setLoginHistory(userId, loginInfo, ttl=30days)
+note right: 로그인 기록 저장\n- 접속 시간, IP, 디바이스\n- 인증 방식, 위치 정보
+
+== 4단계: 사용자 안전 정보 조회 ==
+
+userSvc -> safetyService: getUserSafetyInfo(userId)
+note right: 사용자 안전도 정보 조회\n- 현재 안전도 점수\n- 등급 및 배지 정보
+
+userSvc -> repo: getRecentTransactions(userId, limit=5)
+note right: 최근 거래 이력 조회\n- 최근 5건 거래 요약\n- 진행 중인 거래 정보
+
+== 5단계: 로그인 응답 ==
+
+controller -> user: 200 OK
+note right: 로그인 성공 응답\n- JWT 토큰\n- 사용자 기본 정보\n- 현재 안전도 점수\n- 최근 거래 요약\n- 새로운 알림 수
+
+== 예외 처리: 로그인 실패 ==
+
+alt 로그인 실패
+    authSvc -> cache: incrementFailedAttempts(identifier)
+    authSvc -> cache: checkLockoutStatus(identifier)
+
+    alt 5회 실패
+        authSvc -> cache: lockAccount(identifier, ttl=30min)
+        controller -> user: 423 Locked
+        note right: 계정 잠금 응답\n- 잠금 시간: 30분\n- 잠금 해제 시각
+    else 실패 횟수 < 5
+        controller -> user: 401 Unauthorized
+        note right: 로그인 실패 응답\n- 남은 시도 횟수\n- 실패 사유
+    end
+end
+
+@enduml

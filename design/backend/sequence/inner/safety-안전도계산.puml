@@ -1,0 +1,201 @@
+@startuml
+!theme mono
+
+title Safety 서비스 - 안전도계산 내부 시퀀스
+
+participant "SafetyBatchService" as batchService
+participant "SafetyCalculationService" as calcService
+participant "SafetyRuleEngine" as ruleEngine
+participant "UserSafetyRepository" as userRepo
+participant "SafetyHistoryRepository" as historyRepo
+participant "TransactionService<<E>>" as transactionService
+participant "ReportService<<E>>" as reportService
+participant "MonitorService<<E>>" as monitorService
+database "Redis Cache<<E>>" as cache
+database "PostgreSQL<<E>>" as database
+queue "RabbitMQ<<E>>" as messageQueue
+
+note over batchService
+UFR-SAFE-020: 안전도계산
+종합적 안전도 점수 계산
+트리거: 거래완료, 신고접수, 주기적 배치
+end note
+
+== 안전도 계산 트리거 ==
+alt 실시간 계산 (거래 완료 또는 신고 접수)
+    transactionService -> messageQueue: publish(TransactionCompletedEvent)
+    activate messageQueue
+    messageQueue -> calcService: consume(TransactionCompletedEvent)
+    deactivate messageQueue
+
+else 주기적 배치 계산
+    batchService -> calcService: calculateSafetyScoresForActiveUsers()
+    activate calcService
+
+    batchService -> calcService: calculateSafetyScoresForAllUsers()
+    note right: 주간 전체 사용자 대상
+end
+
+== 사용자별 안전도 계산 ==
+activate calcService
+
+calcService -> userRepo: findUsersForCalculation(criteria)
+activate userRepo
+
+userRepo -> database: SELECT user_id, created_date, last_calculated FROM users WHERE ...
+activate database
+database --> userRepo: List<UserEntity>
+deactivate database
+
+userRepo --> calcService: List<UserId>
+deactivate userRepo
+
+loop 각 사용자별 계산
+    calcService -> calcService: calculateUserSafetyScore(userId)
+    activate calcService
+
+    == 기본 데이터 수집 ==
+    calcService -> transactionService: getTransactionStats(userId)
+    activate transactionService
+    transactionService --> calcService: TransactionStatsDto
+    deactivate transactionService
+
+    calcService -> reportService: getReportHistory(userId)
+    activate reportService
+    reportService --> calcService: ReportHistoryDto
+    deactivate reportService
+
+    calcService -> userRepo: getUserProfile(userId)
+    activate userRepo
+
+    userRepo -> database: SELECT * FROM user_profiles WHERE user_id = ?
+    activate database
+    database --> userRepo: UserProfileEntity
+    deactivate database
+
+    userRepo --> calcService: UserProfileDto
+    deactivate userRepo
+
+    == 위험 요소 확인 ==
+    calcService -> monitorService: getRiskFactors(userId)
+    activate monitorService
+    monitorService --> calcService: RiskFactorsDto
+    deactivate monitorService
+
+    == 안전도 점수 계산 ==
+    calcService -> ruleEngine: calculateScore(calculationData)
+    activate ruleEngine
+
+    note over ruleEngine
+    안전도 계산 요소:
+    - 거래 완료율: 70% 이상 +20점, 50% 미만 -20점
+    - 신고 접수: 3건 이상 -30점, 사기 신고 -50점
+    - 계정 생성일: 30일 미만 신규 표시, 1년 이상 +10점
+    - 거래 취소율: 50% 이상 -20점
+    - 평균 응답시간: 24시간 이상 -10점, 1시간 이내 +10점
+    - 프로필 완성도: 90% 이상 +10점
+    - 추가 인증: 인증 항목당 +10~30점
+
+    위험 요소 감지:
+    - 동일 IP 24시간 내 5개 이상 계정 생성 -50점
+    - 거래 패턴 급격한 변화 -30점
+    - 신고 접수 급증 -40점
+    - 비정상적 가격 설정 패턴 -20점
+    end note
+
+    ruleEngine -> ruleEngine: applyTransactionRules(transactionStats)
+    ruleEngine -> ruleEngine: applyReportPenalties(reportHistory)
+    ruleEngine -> ruleEngine: applyAccountAgeBonus(accountAge)
+    ruleEngine -> ruleEngine: applyProfileCompletenessBunus(profileData)
+    ruleEngine -> ruleEngine: applyRiskPenalties(riskFactors)
+
+    ruleEngine --> calcService: SafetyScoreResult
+    deactivate ruleEngine
+
+    == 등급 결정 ==
+    calcService -> calcService: determineGrade(safetyScore)
+    activate calcService
+
+    note right of calcService
+    등급 결정 기준:
+    - 최우수(90-100점)
+    - 우수(70-89점)
+    - 보통(50-69점)
+    - 주의(30-49점)
+    - 위험(0-29점)
+    - 신규(7일 미만)
+    end note
+
+    calcService -> calcService: SafetyGrade
+    deactivate calcService
+
+    == 계산 이력 저장 ==
+    calcService -> historyRepo: saveCalculationHistory(userId, oldScore, newScore, factors)
+    activate historyRepo
+
+    historyRepo -> database: INSERT INTO safety_calculation_history ...
+    activate database
+    database --> historyRepo: historyId
+    deactivate database
+
+    historyRepo --> calcService: CalculationHistoryId
+    deactivate historyRepo
+
+    == 안전도 점수 업데이트 ==
+    calcService -> userRepo: updateSafetyScore(userId, newScore, grade)
+    activate userRepo
+
+    userRepo -> database: UPDATE user_safety SET safety_score = ?, grade = ?, last_updated = NOW() WHERE user_id = ?
+    activate database
+    database --> userRepo: updatedRows
+    deactivate database
+
+    userRepo --> calcService: UpdateResult
+    deactivate userRepo
+
+    == 캐시 갱신 ==
+    calcService -> cache: del("safety_display:${userId}")
+    activate cache
+    cache --> calcService: OK
+    deactivate cache
+
+    calcService -> cache: del("safety_score:${userId}")
+    activate cache
+    cache --> calcService: OK
+    deactivate cache
+
+    == 등급 변경 알림 ==
+    alt 등급이 2단계 이상 변경된 경우
+        calcService -> messageQueue: publish(SafetyGradeChangedEvent)
+        activate messageQueue
+        note right: 사용자에게 등급 변경 알림
+
+        messageQueue -> calcService: ack
+        deactivate messageQueue
+    end
+
+    alt 위험 등급으로 전환된 경우
+        calcService -> messageQueue: publish(HighRiskUserDetectedEvent)
+        activate messageQueue
+        note right: 관리자에게 즉시 알림
+
+        messageQueue -> calcService: ack
+        deactivate messageQueue
+    end
+
+    calcService -> calcService: SafetyScoreDto
+    deactivate calcService
+end
+
+calcService -> calcService: List<SafetyScoreDto>
+deactivate calcService
+
+note over calcService, database
+계산 주기 및 정책:
+- 실시간 계산: 거래 완료, 신고 접수 시 즉시 반영
+- 일간 갱신: 매일 자정 활성 사용자 대상
+- 주간 갱신: 매주 일요일 전체 사용자 대상
+- 긴급 갱신: 위험 감지 시 즉시 재계산
+end note
+
+@enduml

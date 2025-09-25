@@ -1,0 +1,267 @@
+@startuml
+!theme mono
+
+title Safety 서비스 - 안전도갱신 내부 시퀘스
+
+participant "SafetyUpdateScheduler" as scheduler
+participant "SafetyBatchProcessor" as batchProcessor
+participant "SafetyCalculationService" as calcService
+participant "SafetyDisplayService" as displayService
+participant "SystemMonitorService" as monitorService
+participant "UserSafetyRepository" as userRepo
+participant "BatchJobRepository" as jobRepo
+database "Redis Cache<<E>>" as cache
+database "PostgreSQL<<E>>" as database
+queue "RabbitMQ<<E>>" as messageQueue
+
+note over scheduler
+UFR-SAFE-040: 안전도갱신
+주기적 또는 이벤트 기반 안전도 갱신
+end note
+
+== 갱신 스케줄 트리거 ==
+alt 주기적 갱신 (일간)
+    scheduler -> scheduler: dailyUpdateSchedule()
+    activate scheduler
+    note right: 매일 자정 실행
+
+    scheduler -> monitorService: getSystemLoad()
+    activate monitorService
+    monitorService --> scheduler: SystemLoadDto
+    deactivate monitorService
+
+    scheduler -> batchProcessor: processDailyUpdate(systemLoad)
+
+else 주기적 갱신 (주간)
+    scheduler -> scheduler: weeklyUpdateSchedule()
+    activate scheduler
+    note right: 매주 일요일 실행
+
+    scheduler -> batchProcessor: processWeeklyUpdate()
+
+else 이벤트 기반 갱신
+    messageQueue -> batchProcessor: consume(SafetyUpdateRequiredEvent)
+    note right: 거래 완료, 신고 접수, 정책 변경
+
+else 긴급 갱신
+    messageQueue -> batchProcessor: consume(EmergencyUpdateEvent)
+    note right: 위험 감지 시 즉시 갱신
+end
+
+== 배치 처리 시작 ==
+activate batchProcessor
+
+batchProcessor -> jobRepo: createBatchJob(updateType, estimatedUsers)
+activate jobRepo
+
+jobRepo -> database: INSERT INTO batch_jobs (job_type, status, created_at, estimated_records) VALUES (?, 'STARTED', NOW(), ?)
+activate database
+database --> jobRepo: jobId
+deactivate database
+
+jobRepo --> batchProcessor: BatchJobId
+deactivate jobRepo
+
+== 시스템 부하 기반 배치 크기 결정 ==
+batchProcessor -> monitorService: getCurrentSystemLoad()
+activate monitorService
+monitorService --> batchProcessor: SystemLoadDto
+deactivate monitorService
+
+batchProcessor -> batchProcessor: determineBatchSize(systemLoad)
+activate batchProcessor
+
+note over batchProcessor
+배치 처리 최적화:
+- 시스템 부하 < 70%: 대용량 배치 (1000명/배치)
+- 시스템 부하 70-85%: 중간 배치 (500명/배치)
+- 시스템 부하 > 85%: 소용량 배치 (100명/배치)
+- 피크 시간대: 처리 연기
+end note
+
+alt 시스템 부하 < 70%
+    batchProcessor -> batchProcessor: batchSize = 1000
+else 시스템 부하 70-85%
+    batchProcessor -> batchProcessor: batchSize = 500
+else 시스템 부하 > 85%
+    batchProcessor -> batchProcessor: batchSize = 100
+else 피크 시간대
+    batchProcessor -> scheduler: scheduleDeferredUpdate(1hour)
+    note right: 1시간 후 재시도
+    batchProcessor -> batchProcessor: return
+end
+
+batchProcessor -> batchProcessor: BatchConfiguration
+deactivate batchProcessor
+
+== 대상 사용자 조회 ==
+batchProcessor -> userRepo: findUsersForUpdate(updateType, batchSize, offset)
+activate userRepo
+
+userRepo -> database: SELECT user_id, last_updated, priority FROM user_safety WHERE ... ORDER BY priority DESC, last_updated ASC LIMIT ?
+activate database
+database --> userRepo: List<UserEntity>
+deactivate database
+
+userRepo --> batchProcessor: List<UserId>
+deactivate userRepo
+
+== 배치 처리 루프 ==
+loop 배치별 처리
+    batchProcessor -> batchProcessor: processBatch(userIds)
+    activate batchProcessor
+
+    == 병렬 처리 최적화 ==
+    par 사용자별 병렬 계산
+        loop 각 사용자별
+            batchProcessor -> calcService: calculateSafetyScoreAsync(userId)
+            activate calcService
+
+            calcService -> calcService: performCalculation(userId)
+            note right: 안전도계산 시퀀스 실행
+
+            calcService --> batchProcessor: SafetyScoreResult
+            deactivate calcService
+        end
+    and 진행률 모니터링
+        batchProcessor -> jobRepo: updateProgress(jobId, processedCount, totalCount)
+        activate jobRepo
+
+        jobRepo -> database: UPDATE batch_jobs SET processed_records = ?, progress = ? WHERE job_id = ?
+        activate database
+        database --> jobRepo: updatedRows
+        deactivate database
+
+        jobRepo --> batchProcessor: UpdateResult
+        deactivate jobRepo
+    end
+
+    == 등급 변경 감지 ==
+    batchProcessor -> batchProcessor: detectGradeChanges(results)
+    activate batchProcessor
+
+    note right of batchProcessor
+    갱신 결과 처리:
+    - 등급 변경 알림: 2단계 이상 변경 시 사용자 알림
+    - 위험 등급 전환: 즉시 관리자 알림
+    - 갱신 통계: 관리자 대시보드 업데이트
+    end note
+
+    loop 등급 변경된 사용자
+        alt 2단계 이상 등급 변경
+            batchProcessor -> messageQueue: publish(GradeChangeNotificationEvent)
+            activate messageQueue
+            messageQueue --> batchProcessor: ack
+            deactivate messageQueue
+
+        else 위험 등급으로 전환
+            batchProcessor -> messageQueue: publish(HighRiskUserAlertEvent)
+            activate messageQueue
+            note right: 관리자 즉시 알림
+            messageQueue --> batchProcessor: ack
+            deactivate messageQueue
+        end
+    end
+
+    batchProcessor -> batchProcessor: GradeChangeResults
+    deactivate batchProcessor
+
+    == 표시 갱신 ==
+    batchProcessor -> displayService: updateDisplaysForUsers(userIds)
+    activate displayService
+
+    displayService -> displayService: batchUpdateDisplays(userIds)
+    note right: 안전표시생성 시퀀스 실행
+
+    displayService --> batchProcessor: DisplayUpdateResults
+    deactivate displayService
+
+    == 캐시 갱신 ==
+    loop 캐시 무효화
+        batchProcessor -> cache: del("safety_display:${userId}")
+        activate cache
+        cache --> batchProcessor: OK
+        deactivate cache
+
+        batchProcessor -> cache: del("safety_score:${userId}")
+        activate cache
+        cache --> batchProcessor: OK
+        deactivate cache
+    end
+
+    batchProcessor -> batchProcessor: BatchResult
+    deactivate batchProcessor
+
+    == 시스템 부하 확인 ==
+    batchProcessor -> monitorService: getCurrentSystemLoad()
+    activate monitorService
+    monitorService --> batchProcessor: SystemLoadDto
+    deactivate monitorService
+
+    alt 시스템 부하 > 90%
+        batchProcessor -> batchProcessor: sleep(30000)
+        note right: 30초 대기
+    end
+end
+
+== 배치 작업 완료 ==
+batchProcessor -> jobRepo: completeBatchJob(jobId, totalProcessed, statistics)
+activate jobRepo
+
+jobRepo -> database: UPDATE batch_jobs SET status = 'COMPLETED', completed_at = NOW(), total_processed = ?, statistics = ? WHERE job_id = ?
+activate database
+database --> jobRepo: updatedRows
+deactivate database
+
+jobRepo --> batchProcessor: CompletionResult
+deactivate jobRepo
+
+== 갱신 통계 생성 ==
+batchProcessor -> batchProcessor: generateUpdateStatistics(results)
+activate batchProcessor
+
+note over batchProcessor
+갱신 통계 정보:
+- 총 처리된 사용자 수
+- 등급 변경 사용자 수
+- 위험 등급 전환 사용자 수
+- 평균 처리 시간
+- 시스템 부하 영향
+end note
+
+batchProcessor -> batchProcessor: UpdateStatistics
+deactivate batchProcessor
+
+== 관리자 대시보드 업데이트 ==
+batchProcessor -> messageQueue: publish(BatchUpdateCompletedEvent)
+activate messageQueue
+
+note right of messageQueue
+대시보드 업데이트:
+- 일간/주간 갱신 완료 상태
+- 등급별 사용자 분포 변화
+- 시스템 성능 지표
+- 처리 시간 통계
+end note
+
+messageQueue --> batchProcessor: ack
+deactivate messageQueue
+
+alt 스케줄 갱신인 경우
+    batchProcessor --> scheduler: UpdateResult
+    deactivate scheduler
+else 이벤트 기반 갱신인 경우
+    batchProcessor -> messageQueue: ack
+end
+
+deactivate batchProcessor
+
+note over scheduler, database
+다음 갱신 스케줄:
+- 일간 갱신: 다음날 자정
+- 주간 갱신: 다음주 일요일
+- 이벤트 갱신: 실시간 대응
+- 긴급 갱신: 즉시 처리
+end note
+
+@enduml

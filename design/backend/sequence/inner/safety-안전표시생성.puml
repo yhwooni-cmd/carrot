@@ -1,0 +1,229 @@
+@startuml
+!theme mono
+
+title Safety 서비스 - 안전표시생성 내부 시퀀스
+
+participant "SafetyDisplayService" as displayService
+participant "DisplayGeneratorService" as generatorService
+participant "UserPreferenceService" as prefService
+participant "SafetyDisplayRepository" as displayRepo
+participant "DisplayTemplateRepository" as templateRepo
+participant "SafetyConfigRepository" as configRepo
+database "Redis Cache<<E>>" as cache
+database "PostgreSQL<<E>>" as database
+queue "RabbitMQ<<E>>" as messageQueue
+
+note over displayService
+UFR-SAFE-030: 안전표시생성
+시각적 안전 표시 생성
+트리거: 안전도 점수 계산 완료
+end note
+
+== 안전 표시 생성 요청 ==
+messageQueue -> displayService: consume(SafetyScoreCalculatedEvent)
+activate displayService
+
+displayService -> generatorService: generateSafetyDisplay(userId, safetyScore, grade)
+activate generatorService
+
+== 사용자 맞춤 설정 확인 ==
+generatorService -> prefService: getUserDisplayPreferences(userId)
+activate prefService
+
+prefService -> cache: get("user_prefs:${userId}")
+activate cache
+
+alt 캐시에서 조회 성공
+    cache --> prefService: UserPreferencesDto
+    deactivate cache
+
+else 캐시 미스 - DB 조회
+    cache --> prefService: null
+    deactivate cache
+
+    prefService -> database: SELECT * FROM user_display_preferences WHERE user_id = ?
+    activate database
+    database --> prefService: UserPreferencesEntity
+    deactivate database
+
+    prefService -> cache: setex("user_prefs:${userId}", 7200, preferencesDto)
+    activate cache
+    cache --> prefService: OK
+    deactivate cache
+end
+
+prefService --> generatorService: UserPreferencesDto
+deactivate prefService
+
+== 기본 표시 템플릿 조회 ==
+generatorService -> templateRepo: findTemplateByGrade(grade)
+activate templateRepo
+
+templateRepo -> database: SELECT * FROM display_templates WHERE grade = ?
+activate database
+database --> templateRepo: DisplayTemplateEntity
+deactivate database
+
+templateRepo --> generatorService: DisplayTemplateDto
+deactivate templateRepo
+
+== 접근성 설정 적용 ==
+generatorService -> generatorService: applyAccessibilitySettings(template, preferences)
+activate generatorService
+
+note over generatorService
+사용자 맞춤 설정 적용:
+- 색약 사용자: 대체 색상 패턴 제공
+- 고령자: 큰 아이콘과 명확한 텍스트
+- 시각 장애인: 텍스트 대체 설명 포함
+- 간단/상세 모드: 표시 정보량 선택
+end note
+
+alt 색약 사용자
+    generatorService -> configRepo: getColorBlindFriendlyPalette()
+    activate configRepo
+    configRepo --> generatorService: ColorPalette
+    deactivate configRepo
+
+else 고령자
+    generatorService -> configRepo: getLargeIconSettings()
+    activate configRepo
+    configRepo --> generatorService: IconSettings
+    deactivate configRepo
+
+else 시각 장애인
+    generatorService -> configRepo: getTextAlternativeSettings()
+    activate configRepo
+    configRepo --> generatorService: TextAlternativeSettings
+    deactivate configRepo
+end
+
+generatorService -> generatorService: AccessibilityAdjustedTemplate
+deactivate generatorService
+
+== 표시 요소 생성 ==
+generatorService -> generatorService: generateDisplayElements(template, safetyScore, grade)
+activate generatorService
+
+note over generatorService
+표시 요소 구성:
+- 기본 색상: 등급별 색상 배경
+- 별점 표시: 1~5개 별 또는 NEW 배지
+- 텍스트 라벨: "최우수", "우수", "주의" 등
+- 상세 정보: 호버 시 추가 정보 표시
+end note
+
+generatorService -> generatorService: createColorElement(grade, preferences)
+generatorService -> generatorService: createStarRatingElement(safetyScore)
+generatorService -> generatorService: createBadgeElement(grade)
+generatorService -> generatorService: createDetailElement(safetyScore, statistics)
+
+generatorService -> generatorService: SafetyDisplayElements
+deactivate generatorService
+
+== 표시 검증 ==
+generatorService -> generatorService: validateDisplayElements(displayElements)
+activate generatorService
+
+note right of generatorService
+검증 항목:
+- 색상 대비율 검사 (WCAG 기준)
+- 텍스트 가독성 확인
+- 아이콘 크기 적정성
+- 호버 정보 완전성
+end note
+
+generatorService -> generatorService: ValidationResult
+deactivate generatorService
+
+alt 검증 실패
+    generatorService -> generatorService: applyFallbackTemplate()
+    note right: 기본 템플릿 적용
+end
+
+== 표시 데이터 저장 ==
+generatorService -> displayRepo: saveDisplayData(userId, displayElements)
+activate displayRepo
+
+displayRepo -> database: INSERT INTO user_safety_displays (user_id, color_code, star_rating, badge_text, ...) VALUES (?, ?, ?, ?, ...)
+activate database
+database --> displayRepo: displayId
+deactivate database
+
+displayRepo --> generatorService: DisplayId
+deactivate displayRepo
+
+== 캐싱 정책 적용 ==
+generatorService -> generatorService: determineCachePolicy(grade, userType)
+activate generatorService
+
+note over generatorService
+캐싱 및 업데이트 정책:
+- 일반 사용자: 1시간 캐시
+- 신규 사용자: 실시간 갱신
+- 위험 사용자: 30분 캐시
+- 등급 변경 시: 즉시 업데이트 및 알림
+end note
+
+alt 일반 사용자
+    generatorService -> generatorService: cacheTTL = 3600
+else 신규 사용자
+    generatorService -> generatorService: cacheTTL = 0
+else 위험 사용자
+    generatorService -> generatorService: cacheTTL = 1800
+end
+
+generatorService -> generatorService: CachePolicy
+deactivate generatorService
+
+== 캐시 저장 ==
+generatorService -> cache: setex("safety_display:${userId}", cacheTTL, displayElements)
+activate cache
+cache --> generatorService: OK
+deactivate cache
+
+== 다국어 지원 생성 ==
+generatorService -> generatorService: generateI18nDisplayElements(displayElements)
+activate generatorService
+
+note right of generatorService
+다국어 표시 생성:
+- 한국어: 기본
+- 영어: 외국인 사용자
+- 간체중국어: 중국인 관광객
+end note
+
+generatorService -> cache: setex("safety_display:${userId}:ko", cacheTTL, koDisplayElements)
+activate cache
+cache --> generatorService: OK
+deactivate cache
+
+generatorService -> cache: setex("safety_display:${userId}:en", cacheTTL, enDisplayElements)
+activate cache
+cache --> generatorService: OK
+deactivate cache
+
+generatorService -> generatorService: I18nDisplayElements
+deactivate generatorService
+
+== 표시 생성 완료 ==
+generatorService -> messageQueue: publish(SafetyDisplayGeneratedEvent)
+activate messageQueue
+messageQueue --> generatorService: ack
+deactivate messageQueue
+
+generatorService --> displayService: SafetyDisplayResult
+deactivate generatorService
+
+displayService -> messageQueue: ack
+deactivate displayService
+
+note over displayService, database
+생성된 안전 표시는 다음 위치에서 사용:
+- 상품 상세 페이지
+- 사용자 프로필 페이지
+- 거래 목록 페이지
+- 검색 결과 페이지
+end note
+
+@enduml

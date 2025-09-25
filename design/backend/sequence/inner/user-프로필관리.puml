@@ -1,0 +1,122 @@
+@startuml
+!theme mono
+
+title User 서비스 - 신뢰도 프로필 관리 처리
+
+' 참여자 정의
+actor "사용자" as user
+participant "ProfileController" as controller
+participant "UserService" as userSvc
+participant "ProfileService" as profileSvc
+participant "AuthService" as authSvc
+participant "SafetyCalculator" as safetyCalc
+participant "UserRepository" as userRepo
+participant "ProfileRepository" as profileRepo
+participant "Redis Cache<<E>>" as cache
+participant "File Storage<<E>>" as storage
+participant "Social API<<E>>" as social
+participant "Safety Service<<E>>" as safetyService
+
+== 1단계: 프로필 정보 조회 ==
+
+user -> controller: GET /api/users/profile
+controller -> profileSvc: getUserProfile(userId)
+
+profileSvc -> userRepo: findById(userId)
+profileSvc -> profileRepo: findByUserId(userId)
+profileSvc -> safetyService: getCurrentSafetyScore(userId)
+
+controller -> user: 200 OK
+note right: 현재 프로필 정보\n- 기본 정보\n- 인증 상태\n- 안전도 점수 상세 내역\n- 향상 권장사항
+
+== 2단계: 추가 인증 정보 등록 ==
+
+user -> controller: POST /api/users/profile/verify
+note right: 추가 인증 요청\n- 인증 타입 (직장/학교/거주지)\n- 증빙 서류 파일
+
+controller -> profileSvc: addVerification(userId, verificationRequest)
+
+' 파일 업로드 처리
+profileSvc -> storage: uploadVerificationDocument(file)
+note right: 증빙 서류 저장\n- 파일 암호화 저장\n- 썸네일 생성\n- 메타데이터 추출
+
+' 인증 정보 저장
+profileSvc -> profileRepo: saveVerificationInfo(userId, verificationData)
+
+== 3단계: 소셜 미디어 연동 ==
+
+alt 소셜 미디어 연동
+    user -> controller: POST /api/users/profile/social-connect
+    note right: 소셜 연동 요청\n- 플랫폼: 페이스북/네이버\n- OAuth 토큰
+
+    controller -> authSvc: validateSocialToken(platform, token)
+    authSvc -> social: verifyToken(token)
+    authSvc -> social: getUserProfile(token)
+
+    authSvc -> profileSvc: linkSocialAccount(userId, socialInfo)
+    profileSvc -> profileRepo: saveSocialLink(userId, socialInfo)
+end
+
+== 4단계: 프로필 상세 정보 업데이트 ==
+
+user -> controller: PUT /api/users/profile/details
+note right: 프로필 상세 정보\n- 자기소개\n- 거래 선호 방식\n- 주요 거래 지역\n- 거래 가능 시간
+
+controller -> profileSvc: updateProfileDetails(userId, profileDetails)
+
+profileSvc -> profileRepo: updateDetails(userId, profileDetails)
+
+== 5단계: 안전도 점수 재계산 ==
+
+profileSvc -> safetyCalc: recalculateSafetyScore(userId)
+
+' 각 인증별 점수 계산
+note over safetyCalc: 추가 인증 점수 계산\n- 직장 인증: +20점\n- 학교 인증: +15점\n- 거주지 인증: +25점\n- 소셜 미디어: +10점\n- 프로필 완성도: +10점
+
+safetyCalc -> profileRepo: getVerifications(userId)
+safetyCalc -> userRepo: getBasicInfo(userId)
+
+' 안전도 점수 업데이트
+safetyCalc -> cache: updateSafetyScore(userId, newScore)
+safetyCalc ->> safetyService: updateUserSafety(userId, newScore, changes)
+note right: 비동기로 Safety 서비스에\n안전도 업데이트 알림
+
+== 6단계: 신뢰도 관리 기능 ==
+
+user -> controller: GET /api/users/profile/trust-details
+controller -> profileSvc: getTrustDetails(userId)
+
+profileSvc -> safetyService: getDetailedSafetyInfo(userId)
+note right: 상세 안전도 정보 조회\n- 점수별 상세 내역\n- 등급 변화 이력\n- 향상 권장사항
+
+profileSvc -> userRepo: getTransactionStats(userId)
+note right: 거래 통계 조회\n- 완료율, 응답시간\n- 긍정적 후기 비율\n- 약속 준수율
+
+controller -> user: 200 OK
+note right: 신뢰도 상세 정보\n- 현재 안전도 구성 요소\n- 개선 가능 항목\n- 등급 업그레이드 조건
+
+== 7단계: 프로필 공개 설정 ==
+
+user -> controller: PUT /api/users/profile/privacy
+note right: 공개 설정 변경\n- 프로필 공개 범위\n- 인증 정보 표시 여부\n- 거래 이력 공개 수준
+
+controller -> profileSvc: updatePrivacySettings(userId, privacySettings)
+profileSvc -> profileRepo: updatePrivacy(userId, privacySettings)
+
+' 캐시된 프로필 정보 무효화
+profileSvc -> cache: invalidateUserProfile(userId)
+
+controller -> user: 200 OK
+note right: 프로필 업데이트 완료\n- 새로운 안전도 점수\n- 획득한 인증 배지\n- 등급 변경 여부
+
+== 예외 처리: 인증 실패 ==
+
+alt 인증 서류 검토 실패
+    profileSvc -> userRepo: updateVerificationStatus(userId, "REJECTED", reason)
+    profileSvc -> cache: setNotification(userId, rejectionNotice)
+
+    controller -> user: 400 Bad Request
+    note right: 인증 실패 응답\n- 실패 사유\n- 재제출 가능 여부\n- 필요한 추가 정보
+end
+
+@enduml

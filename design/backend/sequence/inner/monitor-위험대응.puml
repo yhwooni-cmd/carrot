@@ -1,0 +1,199 @@
+@startuml
+!theme mono
+
+title Monitor 서비스 - 위험대응 내부 시퀀스
+
+participant "RiskResponseController" as Controller
+participant "RiskResponseService" as Service
+participant "AutoResponseEngine" as AutoEngine
+participant "ManualReviewService" as ManualService
+participant "ResponseActionDomain" as Domain
+participant "EvidenceCollectionService" as EvidenceService
+participant "RiskEventRepository" as EventRepo
+participant "ResponseHistoryRepository" as HistoryRepo
+participant "RiskPatternCache" as Cache
+participant "NotificationService" as NotifyService
+entity "<<E>> User Service" as UserAPI
+entity "<<E>> Safety Service" as SafetyAPI
+entity "<<E>> Transaction Service" as TransactionAPI
+entity "<<E>> Report Service" as ReportAPI
+
+note over Controller : 위험 감지 시스템에서\n위험도 평가 결과를 수신
+
+' 위험 대응 시작
+Controller -> Controller : POST /risk-response/handle\n(riskAssessment, userId, riskType)
+activate Controller
+
+Controller -> Service : handleRiskResponse(riskAssessment)
+activate Service
+
+' 위험 이벤트 기록
+Service -> EventRepo : saveRiskEvent(riskData)
+EventRepo --> Service : riskEventId
+
+' 증거 수집 서비스 호출
+Service -> EvidenceService : collectEvidence(userId, riskType)
+activate EvidenceService
+
+EvidenceService -> EventRepo : getRiskEventDetails(riskEventId)
+EventRepo --> EvidenceService : 위험 이벤트 상세 정보
+
+EvidenceService -> HistoryRepo : getUserResponseHistory(userId)
+HistoryRepo --> EvidenceService : 사용자 이전 대응 이력
+
+EvidenceService -> Cache : getRiskPatterns(userId)
+Cache --> EvidenceService : 위험 패턴 캐시 데이터
+
+EvidenceService --> Service : collectedEvidence
+deactivate EvidenceService
+
+' 위험도에 따른 자동/수동 대응 결정
+alt 매우높은 위험 (9-10점) - 자동 즉시 대응
+    Service -> AutoEngine : executeImmediateResponse(riskAssessment)
+    activate AutoEngine
+
+    ' 계정 즉시 정지
+    AutoEngine -> Domain : createSuspensionAction(userId, reason)
+    activate Domain
+    Domain -> Domain : 정지사유생성()
+    Domain -> Domain : 정지기간결정()
+    Domain --> AutoEngine : suspensionAction
+    deactivate Domain
+
+    AutoEngine -> UserAPI : <<E>> POST /users/suspend-account
+    UserAPI --> AutoEngine : 계정 정지 완료
+
+    ' 진행 중인 거래 중단
+    AutoEngine -> TransactionAPI : <<E>> POST /transactions/halt-user-transactions
+    TransactionAPI --> AutoEngine : 거래 중단 완료
+
+    ' 자금 보호 조치
+    AutoEngine -> TransactionAPI : <<E>> POST /transactions/protect-escrow-funds
+    TransactionAPI --> AutoEngine : 자금 보호 완료
+
+    ' Safety 서비스 안전도 업데이트
+    AutoEngine -> SafetyAPI : <<E>> POST /safety/emergency-score-update
+    SafetyAPI --> AutoEngine : 안전도 업데이트 완료
+
+    deactivate AutoEngine
+
+else 높은 위험 (7-8점) - 거래 기능 제한
+    Service -> AutoEngine : executeRestrictiveResponse(riskAssessment)
+    activate AutoEngine
+
+    AutoEngine -> Domain : createRestrictionAction(userId, restrictions)
+    activate Domain
+    Domain -> Domain : 제한사항결정()
+    note right : 거래 등록 제한\n메시지 발송 제한\n결제 기능 제한
+    Domain --> AutoEngine : restrictionAction
+    deactivate Domain
+
+    AutoEngine -> UserAPI : <<E>> POST /users/restrict-functions
+    UserAPI --> AutoEngine : 기능 제한 완료
+
+    AutoEngine -> TransactionAPI : <<E>> POST /transactions/restrict-user-trading
+    TransactionAPI --> AutoEngine : 거래 제한 완료
+
+    deactivate AutoEngine
+
+    ' 수동 검토 큐에 추가
+    Service -> ManualService : addToReviewQueue(riskAssessment, evidence)
+    activate ManualService
+    ManualService -> ManualService : 검토우선순위결정()
+    ManualService -> ManualService : 관리자할당()
+    ManualService --> Service : reviewQueueId
+    deactivate ManualService
+
+else 보통 위험 (4-6점) - 모니터링 강화
+    Service -> AutoEngine : executeMonitoringResponse(riskAssessment)
+    activate AutoEngine
+
+    AutoEngine -> Domain : createMonitoringAction(userId, monitoringLevel)
+    activate Domain
+    Domain -> Domain : 모니터링수준결정()
+    note right : 활동 로그 상세 기록\n패턴 분석 주기 단축\n알림 임계값 조정
+    Domain --> AutoEngine : monitoringAction
+    deactivate Domain
+
+    ' 캐시에 모니터링 설정 저장
+    AutoEngine -> Cache : setEnhancedMonitoring(userId, settings)
+
+    deactivate AutoEngine
+
+else 낮은 위험 (1-3점) - 로그 기록 및 추적
+    Service -> Service : recordLowRiskEvent(riskAssessment)
+    note right : 패턴 분석을 위한\n로그 데이터만 기록
+end
+
+' 연관 계정 대응 조치
+Service -> Service : handleRelatedAccounts(userId, riskLevel)
+
+' 연관 계정 조회
+Service -> UserAPI : <<E>> GET /users/related-accounts/{userId}
+UserAPI --> Service : 연관 계정 목록
+
+loop 각 연관 계정
+    alt 위험도 7점 이상인 경우
+        Service -> Service : applyPreventiveResponse(relatedUserId)
+        note right : 연관 계정에도\n예방적 조치 적용
+    end
+end
+
+' 사용자 및 거래 상대방 알림
+Service -> NotifyService : sendRiskResponseNotifications(responseActions)
+activate NotifyService
+
+alt 계정 정지/제한된 경우
+    NotifyService -> NotifyService : 사용자알림생성()
+    note right : 정지/제한 사유와\n이의제기 방법 안내
+
+    NotifyService -> UserAPI : <<E>> POST /users/send-notification
+    UserAPI --> NotifyService : 사용자 알림 전송 완료
+end
+
+' 거래 상대방들에게 주의 알림
+NotifyService -> TransactionAPI : <<E>> GET /transactions/user-counterparts/{userId}
+TransactionAPI --> NotifyService : 거래 상대방 목록
+
+loop 각 거래 상대방
+    NotifyService -> NotifyService : 주의알림생성()
+    note right : 거래 주의 필요\n안내 메시지 생성
+
+    NotifyService -> UserAPI : <<E>> POST /users/send-warning-notification
+    UserAPI --> NotifyService : 주의 알림 전송 완료
+end
+
+deactivate NotifyService
+
+' 사전 신고 접수
+alt 사기 의심도가 높은 경우
+    Service -> ReportAPI : <<E>> POST /reports/preemptive-report
+    ReportAPI --> Service : 사전 신고 접수 완료
+end
+
+' 대응 결과 기록
+Service -> Domain : createResponseResult(actions, outcomes)
+activate Domain
+Domain -> Domain : 대응결과평가()
+Domain -> Domain : 효과성측정()
+Domain --> Service : responseResult
+deactivate Domain
+
+Service -> HistoryRepo : saveResponseHistory(responseResult)
+HistoryRepo --> Service : historyId
+
+' 재발 방지 규칙 업데이트
+Service -> Service : updatePreventionRules(riskPattern, responseEffectiveness)
+Service -> Cache : updateRiskPreventionRules(newRules)
+
+Service --> Controller : riskResponseResult
+deactivate Service
+
+Controller --> Controller : 위험 대응 완료 응답\n(조치 내역, 대응 결과, 후속 조치)
+deactivate Controller
+
+note over Controller, NotifyService : 위험도에 따른 자동 대응 후\n관련된 모든 당사자에게 적절한 알림 전송
+
+note over Service, Cache : 대응 결과를 바탕으로\n향후 유사 위험 방지를 위한\n규칙 및 패턴 업데이트
+
+@enduml

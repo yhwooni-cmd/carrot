@@ -1,0 +1,127 @@
+@startuml
+!theme mono
+
+title Safety 서비스 - 안전도조회 내부 시퀀스
+
+actor "구매자" as buyer
+participant "SafetyController" as controller
+participant "SafetyQueryService" as queryService
+participant "SafetyCalculationService" as calcService
+participant "UserSafetyRepository" as userRepo
+participant "SafetyDisplayRepository" as displayRepo
+database "Redis Cache<<E>>" as cache
+database "PostgreSQL<<E>>" as database
+participant "UserService<<E>>" as userService
+
+note over controller
+UFR-SAFE-010: 안전도조회
+판매자 안전도 직관적 확인
+end note
+
+== 판매자 안전도 조회 요청 ==
+buyer -> controller: GET /api/safety/users/{sellerId}/score
+activate controller
+
+controller -> queryService: getSafetyScoreDisplay(sellerId)
+activate queryService
+
+== 캐시 확인 ==
+queryService -> cache: get("safety_display:${sellerId}")
+activate cache
+
+alt 캐시에서 조회 성공
+    cache --> queryService: SafetyDisplayDto
+    deactivate cache
+
+    queryService --> controller: SafetyDisplayDto
+    deactivate queryService
+
+    controller --> buyer: 200 OK + SafetyDisplayResponse
+    deactivate controller
+
+else 캐시 미스 - DB에서 조회
+    cache --> queryService: null
+    deactivate cache
+
+    == 데이터베이스 조회 ==
+    queryService -> userRepo: findSafetyScoreByUserId(sellerId)
+    activate userRepo
+
+    userRepo -> database: SELECT safety_score, grade, last_updated FROM user_safety WHERE user_id = ?
+    activate database
+    database --> userRepo: SafetyScoreEntity
+    deactivate database
+
+    userRepo --> queryService: SafetyScoreDto
+    deactivate userRepo
+
+    == 시각적 표시 데이터 조회 ==
+    queryService -> displayRepo: findDisplayElementsByGrade(grade)
+    activate displayRepo
+
+    displayRepo -> database: SELECT color, star_rating, badge_text FROM safety_display WHERE grade = ?
+    activate database
+    database --> displayRepo: SafetyDisplayEntity
+    deactivate database
+
+    displayRepo --> queryService: SafetyDisplayElements
+    deactivate displayRepo
+
+    == 상세 안전 정보 조회 ==
+    queryService -> userService: getUserTransactionStats(sellerId)
+    activate userService
+    userService --> queryService: TransactionStatsDto
+    deactivate userService
+
+    == 취약계층 보호 정보 확인 ==
+    queryService -> userRepo: findProtectionInfo(sellerId)
+    activate userRepo
+
+    userRepo -> database: SELECT vulnerable_friendly, safe_location_available, day_trade_available FROM user_protection WHERE user_id = ?
+    activate database
+    database --> userRepo: ProtectionInfoEntity
+    deactivate database
+
+    userRepo --> queryService: ProtectionInfoDto
+    deactivate userRepo
+
+    == 응답 데이터 구성 ==
+    queryService -> queryService: buildSafetyDisplayResponse()
+    activate queryService
+
+    note right of queryService
+    응답 데이터 구성:
+    - 안전도 점수 및 등급
+    - 색상, 별점, 배지 정보
+    - 거래 완료율, 평균 응답시간
+    - 신고 접수 현황, 계정 생성일
+    - 취약계층 보호 정보
+    end note
+
+    queryService -> queryService: SafetyDisplayDto
+    deactivate queryService
+
+    == 캐시 저장 ==
+    queryService -> cache: setex("safety_display:${sellerId}", 3600, safetyDisplayDto)
+    activate cache
+    cache --> queryService: OK
+    deactivate cache
+
+    queryService --> controller: SafetyDisplayDto
+    deactivate queryService
+
+    controller --> buyer: 200 OK + SafetyDisplayResponse
+    deactivate controller
+end
+
+note over buyer, userService
+안전도 시각적 표시:
+- 최우수(90-100): 진녹색 + ★★★★★ + "최우수 판매자"
+- 우수(70-89): 녹색 + ★★★★☆ + "우수 판매자"
+- 보통(50-69): 주황색 + ★★★☆☆ + "일반 판매자"
+- 주의(30-49): 빨간색 + ★★☆☆☆ + "주의 필요"
+- 위험(0-29): 검은색 + ★☆☆☆☆ + "거래 위험"
+- 신규(7일 미만): 회색 + ⭐NEW + "신규 사용자"
+end note
+
+@enduml

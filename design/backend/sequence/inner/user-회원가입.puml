@@ -1,0 +1,79 @@
+@startuml
+!theme mono
+
+title User 서비스 - 안전한 회원가입 처리
+
+' 참여자 정의
+actor "사용자" as user
+participant "SignupController" as controller
+participant "UserService" as service
+participant "AuthService" as authSvc
+participant "SafetyService" as safetySvc
+participant "UserRepository" as repo
+participant "Redis Cache<<E>>" as cache
+participant "SMS API<<E>>" as sms
+participant "Email API<<E>>" as email
+participant "Safety Service<<E>>" as safetyService
+
+== 1단계: 회원가입 정보 입력 ==
+
+user -> controller: POST /api/users/register
+note right: 회원가입 정보\n- 이름, 이메일, 휴대폰\n- 비밀번호, 프로필 정보
+
+controller -> service: registerUser(userRequest)
+
+' 중복 검사
+service -> repo: findByEmail(email)
+service -> repo: findByPhone(phone)
+
+note over service: 중복 계정 검사\n- 동일 휴대폰으로 최대 1개 계정만\n- 이메일 중복 확인
+
+== 2단계: 휴대폰 인증 ==
+
+service -> authSvc: sendSmsVerification(phone)
+authSvc -> sms: sendSMS(phone, code)
+authSvc -> cache: setVerificationCode(phone, code, ttl=5min)
+
+user -> controller: POST /api/auth/verify-sms
+controller -> authSvc: verifySmsCode(phone, code)
+authSvc -> cache: getVerificationCode(phone)
+
+note over authSvc: SMS 인증 검증\n- 5분 내 입력 확인\n- 인증 성공 시 +20점
+
+== 3단계: 이메일 인증 ==
+
+service -> authSvc: sendEmailVerification(email)
+authSvc -> email: sendVerificationEmail(email, token)
+authSvc -> cache: setEmailToken(email, token, ttl=24h)
+
+user -> controller: GET /api/auth/verify-email?token={token}
+controller -> authSvc: verifyEmailToken(token)
+authSvc -> cache: getEmailToken(token)
+
+note over authSvc: 이메일 인증 검증\n- 24시간 내 인증링크 클릭\n- 인증 성공 시 +10점
+
+== 4단계: 기본 안전도 계산 ==
+
+service -> safetySvc: calculateInitialSafetyScore(userInfo)
+
+note over safetySvc: 기본 안전도 점수 계산\n- 기본 점수: 50점\n- 휴대폰 인증: +20점\n- 이메일 인증: +10점\n- 프로필 상세 작성: +10점
+
+safetySvc -> cache: setSafetyScore(userId, score, ttl=1h)
+
+== 5단계: 계정 생성 ==
+
+service -> repo: save(user)
+note right: 사용자 정보 저장\n- 기본 프로필 정보\n- 인증 상태 저장\n- 계정 상태: ACTIVE
+
+service ->> safetyService: createUserSafety(userId, initialScore)
+note right: 비동기로 Safety 서비스에\n초기 안전도 정보 생성 요청
+
+== 6단계: 신규 사용자 배지 설정 ==
+
+service -> cache: setNewUserBadge(userId, ttl=7days)
+note right: 7일간 "신규사용자" 배지\n회색 NEW 배지 표시
+
+controller -> user: 201 Created
+note right: 회원가입 완료 응답\n- 사용자 ID\n- 기본 안전도 점수\n- 신규 사용자 상태
+
+@enduml

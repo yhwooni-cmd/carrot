@@ -1,0 +1,138 @@
+@startuml
+!theme mono
+
+title Monitor 서비스 - 위험감지 내부 시퀀스
+
+actor "실시간\n데이터 스트림" as Stream
+participant "RiskDetectionController" as Controller
+participant "RiskAnalysisService" as Service
+participant "RiskRuleEngine" as RuleEngine
+participant "MLAnalysisService" as MLService
+participant "RiskEvaluationDomain" as Domain
+participant "UserActivityRepository" as UserRepo
+participant "TransactionRepository" as TranRepo
+participant "RiskPatternCache" as Cache
+participant "AlertNotificationService" as AlertService
+entity "<<E>> Safety Service" as SafetyAPI
+entity "<<E>> Report Service" as ReportAPI
+entity "<<E>> User Service" as UserAPI
+
+note over Stream : 실시간 데이터 스트림으로부터\n사용자 활동 데이터 수신
+
+' 실시간 위험 감지 플로우
+Stream -> Controller : POST /risk-detection/analyze\n(실시간 활동 데이터)
+activate Controller
+
+Controller -> Service : analyzeRiskPatterns(activityData)
+activate Service
+
+' 캐시에서 기존 위험 패턴 조회
+Service -> Cache : getRiskPatterns(userId)
+Cache --> Service : 기존 위험 패턴 데이터
+
+' 사용자 과거 활동 이력 조회
+Service -> UserRepo : getUserActivityHistory(userId, period)
+UserRepo --> Service : 사용자 활동 이력
+
+' 거래 이력 조회
+Service -> TranRepo : getTransactionHistory(userId, period)
+TranRepo --> Service : 거래 이력 데이터
+
+' 규칙 기반 위험 분석
+Service -> RuleEngine : evaluateRiskRules(activityData, history)
+activate RuleEngine
+
+RuleEngine -> RuleEngine : 계정생성패턴분석()
+note right : 동일 IP 24시간 내\n5개 이상 계정 검사
+
+RuleEngine -> RuleEngine : 거래패턴분석()
+note right : 취소율 급격 증가\n(50% 이상) 검사
+
+RuleEngine -> RuleEngine : 응답패턴분석()
+note right : 평균 응답시간\n급격 지연 검사
+
+RuleEngine -> RuleEngine : 결제패턴분석()
+note right : 동일 결제수단\n다중 계정 사용 검사
+
+RuleEngine -> RuleEngine : 가격패턴분석()
+note right : 시세 대비 비정상적\n가격 설정 검사
+
+RuleEngine --> Service : ruleBasedRiskScore
+deactivate RuleEngine
+
+' 머신러닝 기반 위험 분석
+Service -> MLService : analyzeWithML(activityData, patterns)
+activate MLService
+
+MLService -> MLService : 패턴매칭분석()
+note right : 기존 사기 패턴과의\n유사도 분석
+
+MLService -> MLService : 행동이상탐지()
+note right : 정상 행동 패턴에서\n벗어난 활동 탐지
+
+MLService -> MLService : 연관계정분석()
+note right : 의심 계정과 연결된\n계정들의 위험도 분석
+
+MLService --> Service : mlBasedRiskScore
+deactivate MLService
+
+' 종합 위험도 평가
+Service -> Domain : calculateTotalRiskScore(ruleScore, mlScore, history)
+activate Domain
+
+Domain -> Domain : 가중치적용()
+note right : 규칙 기반 60%\nML 기반 40% 가중치
+
+Domain -> Domain : 위험도등급결정()
+note right : 낮음(1-3), 보통(4-6)\n높음(7-8), 매우높음(9-10)
+
+Domain -> Domain : 긴급도판단()
+note right : 위험도 7점 이상\n즉시 대응 필요 판단
+
+Domain --> Service : totalRiskAssessment
+deactivate Domain
+
+' 위험 패턴 캐시 업데이트
+Service -> Cache : updateRiskPatterns(userId, riskData)
+
+' 연관 계정 분석
+alt 위험도 7점 이상
+    Service -> Service : analyzeRelatedAccounts(userId, riskData)
+
+    Service -> UserAPI : <<E>> GET /users/related-accounts/{userId}
+    UserAPI --> Service : 연관 계정 목록
+
+    loop 각 연관 계정
+        Service -> Service : analyzeRiskPatterns(relatedAccount)
+        note right : 연관 계정의 위험도\n재분석 수행
+    end
+end
+
+' 실시간 알림 처리
+alt 위험도 7점 이상 (높음/매우높음)
+    Service -> AlertService : sendImmediateAlert(riskAssessment)
+    activate AlertService
+
+    AlertService -> AlertService : 관리자알림생성()
+    AlertService -> AlertService : 위험정보구성()
+
+    ' Safety 서비스에 위험 정보 전송
+    AlertService -> SafetyAPI : <<E>> POST /safety/risk-detected
+    SafetyAPI --> AlertService : 안전도 업데이트 완료
+
+    ' Report 서비스에 사전 신고 정보 전송
+    AlertService -> ReportAPI : <<E>> POST /reports/risk-preemptive
+    ReportAPI --> AlertService : 사전 신고 접수 완료
+
+    deactivate AlertService
+end
+
+Service --> Controller : riskDetectionResult
+deactivate Service
+
+Controller --> Stream : 위험 감지 결과 응답\n(위험도, 조치사항, 알림여부)
+deactivate Controller
+
+note over Controller, AlertService : 위험도 7점 이상 시\n자동으로 관련 서비스에 알림 전송
+
+@enduml

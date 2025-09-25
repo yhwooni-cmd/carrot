@@ -1,0 +1,131 @@
+@startuml
+!theme mono
+
+title Report 서비스 - 신고접수 내부 시퀀스
+
+actor "Frontend" as fe
+participant "ReportController" as ctrl
+participant "ReportService" as service
+participant "ReportDomainService" as domain
+participant "EvidenceService" as evidence
+participant "ReportRepository" as repo
+participant "EvidenceRepository" as evidenceRepo
+database "Redis Cache<<E>>" as cache
+database "PostgreSQL<<E>>" as db
+queue "MessageQueue<<E>>" as mq
+participant "SafetyService<<E>>" as safety
+
+note over fe, safety: UFR-REPO-010: 신고접수 처리 플로우
+
+== 신고 유형 조회 ==
+fe -> ctrl : GET /api/reports/types
+activate ctrl
+ctrl -> cache : 신고유형 캐시 조회
+alt 캐시 히트
+    cache --> ctrl : 캐시된 신고유형 목록
+else 캐시 미스
+    ctrl -> service : getReportTypes()
+    activate service
+    service -> repo : findAllReportTypes()
+    activate repo
+    repo -> db : SELECT * FROM report_types
+    db --> repo : 신고유형 데이터
+    deactivate repo
+    repo --> service : 신고유형 목록
+    service -> cache : 신고유형 캐시 저장 (30분)
+    service --> ctrl : 신고유형 목록
+    deactivate service
+end
+ctrl --> fe : ReportTypesResponse
+deactivate ctrl
+
+== 신고 접수 ==
+fe -> ctrl : POST /api/reports
+note right : 신고 데이터 + 증거파일 포함
+activate ctrl
+
+' 요청 검증
+ctrl -> ctrl : validateReportRequest()
+note right : 필수 필드, 파일 크기/형식 검증
+
+' 서비스 레이어 처리
+ctrl -> service : submitReport(reportRequest)
+activate service
+
+' 신고 정보 검증
+service -> domain : validateReportData(reportData)
+activate domain
+domain -> domain : checkReportType()
+domain -> domain : validateTargetUser()
+domain -> domain : checkDuplicateReport()
+domain --> service : 검증 결과
+deactivate domain
+
+' 신고 번호 생성
+service -> service : generateReportNumber()
+note right : 형식: REPT-YYYYMMDD-NNNN
+
+' 증거 자료 처리
+service -> evidence : processEvidenceFiles(files)
+activate evidence
+evidence -> evidence : validateFileFormat()
+evidence -> evidence : scanForMalware()
+evidence -> evidence : generateFileMetadata()
+evidence -> evidenceRepo : saveEvidenceMetadata()
+activate evidenceRepo
+evidenceRepo -> db : INSERT INTO evidences
+evidenceRepo --> evidence : 증거 ID 목록
+deactivate evidenceRepo
+evidence --> service : 처리된 증거 자료 정보
+deactivate evidence
+
+' 신고 저장
+service -> repo : save(reportEntity)
+activate repo
+repo -> db : INSERT INTO reports
+note right : 신고정보, 증거ID 연결
+db --> repo : 생성된 신고 ID
+deactivate repo
+
+' 캐시 업데이트
+service -> cache : updateReportCache(reportId, reportData)
+
+' 비동기 알림 발송
+service -> mq : publishReportSubmittedEvent(reportEvent)
+note right : 관리자 알림, 신고자 접수확인
+
+service --> ctrl : ReportSubmissionResponse
+deactivate service
+
+ctrl --> fe : 신고 접수 완료 응답
+note right : 처리번호, 예상처리기간 포함
+deactivate ctrl
+
+== 비동기 후속 처리 ==
+mq --> service : ReportSubmittedEvent 처리
+activate service
+
+' 관련 서비스 알림
+service -> safety : notifyReportSubmitted(targetUserId, reportType)
+note right : Safety 서비스에 신고 알림
+
+' 관리자 알림
+service -> service : sendAdminNotification()
+note right : 긴급 신고의 경우 즉시 알림
+
+' 자동 분류 및 우선순위 설정
+service -> domain : classifyReportPriority(reportData)
+activate domain
+domain -> domain : analyzeSeverity()
+domain -> domain : checkReportHistory()
+domain --> service : 우선순위 및 분류 결과
+deactivate domain
+
+service -> repo : updateReportPriority(reportId, priority)
+activate repo
+repo -> db : UPDATE reports SET priority = ?
+deactivate repo
+
+deactivate service
+
+@enduml
